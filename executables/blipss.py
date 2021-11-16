@@ -19,6 +19,12 @@ import os, logging, time, sys, glob
 def set_defaults(hotpotato):
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
+    # Start channel for FFA search
+    if hotpotato['start_ch']=='':
+        hotpotato['start_ch'] = 0
+    # Stop channel for FFA search:
+    if hotpotato['stop_ch']=='':
+        hotpotato['stop_ch'] = 0        
     # Default minimum period covered in FFA search = 0.1 s
     if hotpotato['min_period']=='':
         hotpotato['min_period'] = 0.1
