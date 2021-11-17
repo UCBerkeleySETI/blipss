@@ -44,7 +44,7 @@ def myexecute(inputs_cfg):
     # Inject periodic signals.
     for i in range(N_inject):
         chan = hotpotato['inject_channels'][i] # Channel into which a periodic signal must be injected
-        data[chan]  = TimeSeries.generate(hotpotato['N_samples'], hotpotato['t_samp'], hotpotato['periods'][i],
+        data[chan]  = TimeSeries.generate(hotpotato['N_samples']*hotpotato['t_samp'], hotpotato['t_samp'], hotpotato['periods'][i],
                                   phi0=hotpotato['initial_phase'][i], ducy=hotpotato['duty_cycles'][i],
                                   amplitude=hotpotato['pulse_amplitudes'][i], stdnoise=1.0).data
         logger.info('Injected P = %.2f s signal into channel %d.'% (hotpotato['periods'][i], chan))
@@ -110,7 +110,7 @@ def main():
     optional = parser._action_groups.pop()
     required = parser.add_argument_group('required arguments')
     required.add_argument('-i', action='store', required=True, dest='inputs_cfg', type=str,
-                            help="Configuration script of inputs to rfifind")
+                            help="Configuration script of inputs")
     parser._action_groups.append(optional)
 
     if len(sys.argv)==1:
