@@ -44,10 +44,11 @@ def myexecute(inputs_cfg):
     # Inject periodic signals.
     for i in range(N_inject):
         chan = hotpotato['inject_channels'][i] # Channel into which a periodic signal must be injected
-        data[chan]  = TimeSeries.generate(hotpotato['N_samples']*hotpotato['t_samp'], hotpotato['t_samp'], hotpotato['periods'][i],
+        data[chan]  = TimeSeries.generate(length=hotpotato['N_samples']*hotpotato['t_samp'], tsamp=hotpotato['t_samp'], period=hotpotato['periods'][i],
                                   phi0=hotpotato['initial_phase'][i], ducy=hotpotato['duty_cycles'][i],
                                   amplitude=hotpotato['pulse_amplitudes'][i], stdnoise=1.0).data
         logger.info('Injected P = %.2f s signal into channel %d.'% (hotpotato['periods'][i], chan))
+    data = data.T.reshape((data.T.shape[0], 1, data.T.shape[1])) # New data shape = (Nsamples, Npol, Nchans)
 
     # Build file header.
     header = {'machine_id': 0, 'telescope_id': 0, 'data_type': 1, 'nbits': 32, 'nifs': 1}
@@ -95,10 +96,6 @@ def set_defaults(hotpotato):
         hotpotato['initial_phase'] = []
     if hotpotato['source_name']=='':
         hotpotato['source_name'] = 'Unknown'
-    if hotpotato['src_raj']=='':
-        hotpotato['src_raj'] = '00h00m00.0s'
-    if hotpotato['src_decj']=='':
-        hotpotato['src_decj'] = '00d00m00.0s'
     if hotpotato['tstart']=='':
         hotpotato['tstart'] = 0.0
     return hotpotato
