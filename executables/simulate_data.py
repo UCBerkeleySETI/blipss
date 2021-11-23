@@ -38,15 +38,16 @@ def myexecute(inputs_cfg):
     # No. of channels in which to inject a periodic signal
     N_inject = len(hotpotato['inject_channels'])
 
+    times = np.arange(hotpotato['N_samples']) * hotpotato['t_samp'] # 1D array of times (s)
     # Generate Gaussian white noise background with zero mean and unit variance.
     data = np.random.randn(hotpotato['N_chans'], hotpotato['N_samples'])
     logger.info('Background Gaussian white noise data generated.')
-    # Inject periodic signals.
+    # Inject boxcar periodic signals of constant amplitude.
     for i in range(N_inject):
-        chan = hotpotato['inject_channels'][i] # Channel into which a periodic signal must be injected
-        data[chan]  = TimeSeries.generate(length=hotpotato['N_samples']*hotpotato['t_samp'], tsamp=hotpotato['t_samp'], period=hotpotato['periods'][i],
-                                  phi0=hotpotato['initial_phase'][i], ducy=hotpotato['duty_cycles'][i],
-                                  amplitude=hotpotato['pulse_amplitudes'][i], stdnoise=1.0).data
+        chan = hotpotato['inject_channels'][i] # Channel index into which a periodic signal must be injected
+        phi = times/hotpotato['periods'][i] % 1.0 # Convert times to phase values.
+        indices = np.where( np.logical_and(phi>=hotpotato['initial_phase'][i]-0.5*hotpotato['duty_cycles'][i], phi<hotpotato['initial_phase'][i]+0.5*hotpotato['duty_cycles'][i]) )
+        data[chan][indices] += hotpotato['pulse_SNR'][i]
         logger.info('Injected P = %.2f s signal into channel %d.'% (hotpotato['periods'][i], chan))
     data = data.T.reshape((data.T.shape[0], 1, data.T.shape[1])) # New data shape = (Nsamples, Npol, Nchans)
 
@@ -90,8 +91,8 @@ def set_defaults(hotpotato):
         hotpotato['periods'] = []
     if hotpotato['duty_cycles']=='':
         hotpotato['duty_cycles'] = []
-    if hotpotato['pulse_amplitudes']=='':
-        hotpotato['pulse_amplitudes'] = []
+    if hotpotato['pulse_SNR']=='':
+        hotpotato['pulse_SNR'] = []
     if hotpotato['initial_phase']=='':
         hotpotato['initial_phase'] = []
     if hotpotato['source_name']=='':
