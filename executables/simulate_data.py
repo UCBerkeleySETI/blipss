@@ -13,7 +13,6 @@ from modules.general_utils import setup_logger_stdout, create_dir
 # Standard imports
 from blimpy import Waterfall
 from blimpy.io.sigproc import generate_sigproc_header
-from riptide import TimeSeries
 from argparse import ArgumentParser
 import os, logging, time, sys
 import numpy as np
