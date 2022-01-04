@@ -8,8 +8,9 @@ python inject_signal.py -i <Configuration script of inputs> | tee <Log file>
 from __future__ import print_function
 from __future__ import absolute_import
 # Custom packages
-from modules.read_config import read_config
 from modules.general_utils import setup_logger_stdout, create_dir
+from modules.read_config import read_config
+from modules.read_data import read_watfile
 # Standard imports
 from blimpy import Waterfall
 from argparse import ArgumentParser
@@ -33,12 +34,11 @@ def myexecute(inputs_cfg):
     hotpotato = set_defaults(hotpotato)
     logger = setup_logger_stdout() # Set logger output to stdout().
 
-    # Read data from a filterbank file. Set max data load size to 15 GB.
-    wat  = Waterfall(hotpotato['DATA_DIR'] + '/' + hotpotato['datafile'], max_load=15.0)
-    header = wat.header
-    Nchans = header['nchans'] # No. of spectral channels
+    # Read data from a filterbank file as a blimpy Waterfall object.
+    wat = read_watfile(hotpotato['DATA_DIR'] + '/' + hotpotato['datafile'], hotpotato['mem_load'])
+    Nchans = wat.header['nchans'] # No. of spectral channels
     Nsamples  = wat.n_ints_in_file # No. of time samples
-    tsamp = header['tsamp'] # Sampling time (s)
+    tsamp = wat.header['tsamp'] # Sampling time (s)
     times = np.arange(Nsamples)*tsamp # 1D array of times (s)
     data = wat.data[:,0,:].T # Data shape = (Nchans, Nsamples)
 
@@ -88,7 +88,13 @@ def set_defaults(hotpotato):
     ----------
     hotpotato : dictionary
          Dictionary of input parameters gathered from a configuration script
+
+    Returns
+    -------
+    hotpotato : dictionary
+        Input dictionary with keys set to default values
     """
+    # Set default extension of output files
     if hotpotato['output_ext']=='':
         if '.fil' in hotpotato['datafile']:
             hotpotato['output_ext'] = '.fil'
@@ -96,18 +102,27 @@ def set_defaults(hotpotato):
             hotpotato['output_ext'] = '.h5'
         else:
             hotpotato['output_ext'] = '.fil'
+    # Default output path
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
+    # Default empty list of channels in which to inject periodic signals
     if hotpotato['inject_channels']=='':
         hotpotato['inject_channels'] = []
+    # Default empty list of periods to inject
     if hotpotato['periods']=='':
         hotpotato['periods'] = []
+    # Default empty list of pulse duty cycles
     if hotpotato['duty_cycles']=='':
         hotpotato['duty_cycles'] = []
+    # Default empty list of peak pulse S/N values
     if hotpotato['pulse_SNR']=='':
         hotpotato['pulse_SNR'] = []
+    # Default empty list of initial pulse phases
     if hotpotato['initial_phase']=='':
         hotpotato['initial_phase'] = []
+    # Default memory load size = 1 GB
+    if hotpotato['mem_load']=='':
+        hotpotato['mem_load'] = 1.0
     return hotpotato
 ##############################################################
 def main():

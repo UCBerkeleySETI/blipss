@@ -6,9 +6,9 @@ Primary executable script for the Breakthrough Listen Investigation for Periodic
 from __future__ import print_function
 from __future__ import absolute_import
 # Import custom modules.
-from modules.read_config import read_config
 from modules.general_utils import create_dir, setup_logger_stdout
 from modules.helper_func import periodic_helper
+from modules.read_config import read_config
 # Load standard pacakages.
 from blimpy import Waterfall
 from mpi4py import MPI
@@ -17,31 +17,56 @@ import os, logging, time, sys, glob
 #########################################################################
 # Set up default values for keys of the dictionary "hotpotato".
 def set_defaults(hotpotato):
+    """
+    Set default values for keys in a dictionary of input parameters.
+
+    Parameters
+    ----------
+    hotpotato : dictionary
+         Dictionary of input parameters read from a configuration script
+
+    Returns
+    -------
+    hotpotato : dictionary
+        Input dictionary with keys set to default values
+    """
+    # Default output path
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
+    # Availability of OFF data
+    if hotpotato['have_off']=='':
+        hotpotato['have_off'] = False
     # Start channel for FFA search
     if hotpotato['start_ch']=='':
         hotpotato['start_ch'] = 0
     # Stop channel for FFA search:
     if hotpotato['stop_ch']=='':
-        hotpotato['stop_ch'] = 0        
-    # Default minimum period covered in FFA search = 0.1 s
+        hotpotato['stop_ch'] = None
+    # Default minimum period covered in FFA search = 10 s
     if hotpotato['min_period']=='':
-        hotpotato['min_period'] = 0.1
-    # Default maximum period covered in FFA search = 10 s
+        hotpotato['min_period'] = 10.0
+    # Default maximum period covered in FFA search = 100 s
     if hotpotato['max_period']=='':
-        hotpotato['max_period'] = 10.0
+        hotpotato['max_period'] = 100.0
     # Default S/N threshold = 10.0
     if hotpotato['SNR_threshold']=='':
         hotpotato['SNR_threshold'] = 10.0
-    # Default bins_min = 100
+    # Default bins_min = 10
     if hotpotato['bins_min']=='':
-        hotpotato['bins_min'] = 100
-    # Default bins_max = 110
+        hotpotato['bins_min'] = 10
+    # Default bins_max = 11
     if hotpotato['bins_max']=='':
-        hotpotato['bins_max'] = 110
+        hotpotato['bins_max'] = 11
+    # Detrending flag
+    if hotpotato['do_deredden']=='':
+        hotpotato['do_deredden'] = False
+    # Default running median window width = 12 s
+    if hotpotato['rmed_width']=='':
+        hotpotato['rmed_width'] = 12.0
+    # Default memory load size = 1 GB
+    if hotpotato['mem_load']=='':
+        hotpotato['mem_load'] = 1.0   
     return hotpotato
-
 #########################################################################
 # Run BLIPSS on data.
 def __MPI_MAIN__(parser):

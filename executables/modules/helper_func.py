@@ -1,30 +1,49 @@
 # Helper functions to perform various tasks.
-from read_data import read_blimpy_file
+from read_data import read_watfile
 from riptide import TimeSeries, ffa_search
 import numpy as np
 #########################################################################
-#
-'''
-Inputs:
-datafile =
-start_ch =
-stop_ch =
 
-'''
-def execute_blipss(datafile, start_ch, stop_ch, ):
-    # Read in data.
-    data, header = read_blimpy_file(datafile)
+def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_min, bins_max, deredden_flag, rmed_width, mem_load):
+    """
+    Read in a blimpy data file, execute an FFA search on a per-channel basis, and output results.
+
+    Parameters
+    ----------
+    datafile : string
+         Name of data file to load
+
+    start_ch: integer
+         Channels with index i >= start_ch are searched via FFA.
+
+    stop_ch: integer
+         Channels with index i < stop_ch are searched via FFA.
+
+    mem_load: float
+         Maximum data size in GB allowed in memory (default: 1 GB)
+
+    Returns
+    -------
+    frame : Frame
+        Frame object with preloaded data
+    """
+    # Read in datafile contents.
+    wat = read_watfile(datafile, mem_loads)
     # Gather relevant metadata.
-    nchans, tsamp = header['nchans'], header['tsamp']
-    radio_freqs = header['fch1'] + np.arange(nchans)*header['foff']
+    nchans = wat.header['nchans'] # No. of spectral channels
+    tsamp = wat.header['tsamp'] # Sampling time (s)
+    # 1D array of radio frequencies (GHz)
+    freqs_GHz = (wat.header['fch1'] + np.arange(nchans)*wat.header['foff'])*1.e-3
 
     # Clip off edge channels.
-    if stop_ch==0:
-        stop_ch = len(data) - 1
-    data = data[start_ch:stop_ch+1]  # Start channel and stop channel included.
+    if stop_ch is None:
+        stop_ch = len(data)
+    # Start channel included, stop channel excluded.
+    data = wat.data[:,0,start_ch:stop_ch].T # data.shape = (nchans, nsamples)
     # Revise radio frequency coverage and channel count to reflect properties of the clipped data.
-    radio_freqs = radio_freqs[start_ch:stop_ch+1]
     nchans = len(data)
+    freqs_GHz = freqs_GHz[start_ch:stop_ch]
+
 
     #
 

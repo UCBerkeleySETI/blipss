@@ -83,6 +83,11 @@ def set_defaults(hotpotato):
     ----------
     hotpotato : dictionary
          Dictionary of input parameters gathered from a configuration script
+
+    Returns
+    -------
+    hotpotato : dictionary
+        Input dictionary with keys set to default values
     """
     if hotpotato['inject_channels']=='':
         hotpotato['inject_channels'] = []
