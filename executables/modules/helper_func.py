@@ -3,7 +3,7 @@ from .read_data import read_watfile
 from riptide import TimeSeries, ffa_search
 import numpy as np
 #########################################################################
-def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, SNR_threshold, mem_load):
+def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, SNR_threshold, mem_load, return_radiofreq_limits=True):
     """
     Read in a blimpy data file, execute an FFA search on a per-channel basis, and output results.
 
@@ -48,6 +48,9 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     mem_load: float
          Maximum data size in GB allowed in memory (default: 1 GB)
 
+    return_radiofreq_limits: boolean
+         Do you want to return the radio frequency limits (GHz) of the searched data?
+
     Returns
     -------
     select_chans: List
@@ -64,6 +67,12 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
 
     snrs: List
          List of matched filtering S/N values returned at detected periods.
+
+    min_radiofreq: float
+         Low radio frequency limit (GHz) of FFA-searched data
+
+    max_radiofreq: float
+         High radio frequency limit (GHz) of FFA-searched data
     """
     # Read in datafile contents.
     wat = read_watfile(datafile, mem_load)
@@ -81,8 +90,8 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     # Revise radio frequency coverage and channel count to reflect properties of the clipped data.
     nchans = len(data)
     freqs_GHz = freqs_GHz[start_ch:stop_ch]
-    min_radiofreq = freqs_GHz[0]
-    max_radiofreq = freqs_GHz[-1]
+    min_radiofreq = np.min(freqs_GHz) # Low radio frequency (GHz) limit of FFA-searched data
+    max_radiofreq = np.max(freqs_GHz) # High radio frequency (GHz) limit of FFA-searched data
 
     # Loop over channels and run FFA search on a per-channel basis.
     select_chans = []
@@ -91,7 +100,6 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     snrs = []
     widths = []
     for ch in range(nchans):
-        print(ch)
         orig_ts = TimeSeries.from_numpy_array(data[ch], tsamp=tsamp)
         detrended_ts, pgram = ffa_search(orig_ts, period_min=min_period, period_max=max_period, fpmin=fpmin, bins_min=bins_min,
                                          bins_max=bins_max, ducy_max=ducy_max, deredden=deredden_flag, rmed_width=rmed_width, already_normalised=False)
@@ -108,5 +116,8 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
             widths.append(ch_widths)
             snrs.append(ch_snrs)
 
-    return select_chans, select_radiofreqs, periods, widths, snrs
+    if return_radiofreq_limits:
+        return select_chans, select_radiofreqs, periods, widths, snrs, min_radiofreq, max_radiofreq
+    else:
+        return select_chans, select_radiofreqs, periods, widths, snrs
 #########################################################################
