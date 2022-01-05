@@ -4,7 +4,7 @@ from riptide import TimeSeries, ffa_search
 import numpy as np
 #########################################################################
 
-def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_min, bins_max, deredden_flag, rmed_width, mem_load):
+def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, mem_load):
     """
     Read in a blimpy data file, execute an FFA search on a per-channel basis, and output results.
 
@@ -19,13 +19,34 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_mi
     stop_ch: integer
          Channels with index i < stop_ch are searched via FFA.
 
+    min_period: float
+         Minimum period (s) of FFA search
+
+    max_period: float
+         Maximum period (s) of FFA search
+
+    bins_min: integer
+         Minimum number of bins across folded profile
+
+    bins_max: integer
+         Maximum number of bins across folded profile. Set bins_max 10% larger than bins_min to maintain roughly uniform duty cycle resolution across search.
+
+    ducy_max: float
+         Maximum duty cycle searched
+
+    deredden_flag: boolean
+         Do you want to detrend input time series with a running median filter?  (True/False)
+
+    rmed_width: float
+         Running median window width (s)
+
     mem_load: float
          Maximum data size in GB allowed in memory (default: 1 GB)
 
     Returns
     -------
-    frame : Frame
-        Frame object with preloaded data
+    ts: class object
+        Riptide TimeSeries object containing detrended, normalized time series data
     """
     # Read in datafile contents.
     wat = read_watfile(datafile, mem_loads)

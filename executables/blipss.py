@@ -57,6 +57,9 @@ def set_defaults(hotpotato):
     # Default bins_max = 11
     if hotpotato['bins_max']=='':
         hotpotato['bins_max'] = 11
+    # Default max duty cycle = 0.5
+    if hotpotato['ducy_max']=='':
+        hotpotato['ducy_max'] = 0.5    
     # Detrending flag
     if hotpotato['do_deredden']=='':
         hotpotato['do_deredden'] = False
@@ -65,7 +68,7 @@ def set_defaults(hotpotato):
         hotpotato['rmed_width'] = 12.0
     # Default memory load size = 1 GB
     if hotpotato['mem_load']=='':
-        hotpotato['mem_load'] = 1.0   
+        hotpotato['mem_load'] = 1.0
     return hotpotato
 #########################################################################
 # Run BLIPSS on data.
