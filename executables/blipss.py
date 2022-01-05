@@ -30,12 +30,12 @@ def set_defaults(hotpotato):
     hotpotato : dictionary
         Input dictionary with keys set to default values
     """
+    # Availability of OFF data
+    if hotpotato['have_off']=='':
+        hotpotato['have_off'] = False    
     # Default output path
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
-    # Availability of OFF data
-    if hotpotato['have_off']=='':
-        hotpotato['have_off'] = False
     # Start channel for FFA search
     if hotpotato['start_ch']=='':
         hotpotato['start_ch'] = 0
@@ -48,10 +48,13 @@ def set_defaults(hotpotato):
     # Default maximum period covered in FFA search = 100 s
     if hotpotato['max_period']=='':
         hotpotato['max_period'] = 100.0
-    # Default S/N threshold = 10.0
+    # Default fpmin = 3
+    if hotpotato['fpmin']=='':
+        hotpotato['fpmin'] = 3
+    # Default S/N threshold = 8.0
     if hotpotato['SNR_threshold']=='':
-        hotpotato['SNR_threshold'] = 10.0
-    # Default bins_min = 10
+        hotpotato['SNR_threshold'] = 8.0
+    # Default bins_min = 8
     if hotpotato['bins_min']=='':
         hotpotato['bins_min'] = 10
     # Default bins_max = 11
@@ -59,7 +62,7 @@ def set_defaults(hotpotato):
         hotpotato['bins_max'] = 11
     # Default max duty cycle = 0.5
     if hotpotato['ducy_max']=='':
-        hotpotato['ducy_max'] = 0.5    
+        hotpotato['ducy_max'] = 0.5
     # Detrending flag
     if hotpotato['do_deredden']=='':
         hotpotato['do_deredden'] = False

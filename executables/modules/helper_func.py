@@ -3,8 +3,7 @@ from read_data import read_watfile
 from riptide import TimeSeries, ffa_search
 import numpy as np
 #########################################################################
-
-def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, mem_load):
+def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, SNR_threshold, mem_load):
     """
     Read in a blimpy data file, execute an FFA search on a per-channel basis, and output results.
 
@@ -25,6 +24,9 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_mi
     max_period: float
          Maximum period (s) of FFA search
 
+    fpmin: integer
+         Minimum number of signal periods that must fit in the data. In other words, place a cap on period_max equal to DATA_LENGTH / fpmin.
+
     bins_min: integer
          Minimum number of bins across folded profile
 
@@ -40,16 +42,31 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_mi
     rmed_width: float
          Running median window width (s)
 
+    SNR_threshold: float
+         S/N threshold of FFA + matched filtering search
+
     mem_load: float
          Maximum data size in GB allowed in memory (default: 1 GB)
 
     Returns
     -------
-    ts: class object
-        Riptide TimeSeries object containing detrended, normalized time series data
+    select_chans: List
+         List of channel indices in which significant periodic signals were detected
+
+    select_radiofreqs: List
+         List of radio frequencies (GHz) at which significant periodic signals were detected
+
+    periods: List
+         List of periods (s) detected in above channels
+
+    width: List
+         List of Boxcar filter widths (no. of phase bins) yielding greatest S/N in matched filtering detection of folded profile at detected periods
+
+    snrs: List
+         List of matched filtering S/N values returned at detected periods.
     """
     # Read in datafile contents.
-    wat = read_watfile(datafile, mem_loads)
+    wat = read_watfile(datafile, mem_load)
     # Gather relevant metadata.
     nchans = wat.header['nchans'] # No. of spectral channels
     tsamp = wat.header['tsamp'] # Sampling time (s)
@@ -64,48 +81,32 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, bins_mi
     # Revise radio frequency coverage and channel count to reflect properties of the clipped data.
     nchans = len(data)
     freqs_GHz = freqs_GHz[start_ch:stop_ch]
+    min_radiofreq = freqs_GHz[0]
+    max_radiofreq = freqs_GHz[-1]
 
-
-    #
-
-
-
-
-
-#########################################################################
-# Run FFA on data from a blimpy Waterfall object.
-'''
-Inputs:
-data = 2D data array of shape (No.of channels, No. of time samples)
-frequency = 1D array of radio frequencies (GHz)
-tsamp = Sampling time (s)
-SNR_threshold = S/N threshold applied for matched filtering via riptide
-'''
-def periodic_helper(data, frequency, tsamp, SNR_threshold):
-
+    # Loop over channels and run FFA search on a per-channel basis.
+    select_chans = []
+    select_radiofreqs = []
     periods = []
-    frequencies = []
     snrs = []
-    best_periods = []
+    widths = []
+    for ch in range(nchans):
+        print(ch)
+        orig_ts = TimeSeries.from_numpy_array(data[ch], tsamp=tsamp)
+        detrended_ts, pgram = ffa_search(orig_ts, period_min=min_period, period_max=max_period, fpmin=fpmin, bins_min=bins_min,
+                                         bins_max=bins_max, ducy_max=ducy_max, deredden=deredden_flag, rmed_width=rmed_width, already_normalised=False)
+        # pgram.shape = (No. of trial periods, No. of trial widths)
+        mask = pgram.snrs.max(axis=1) >= SNR_threshold
+        if True in mask:
+            ch_periods = list(pgram.periods[mask])
+            ch_snrs = list(pgram.snrs.max(axis=1)[mask])
+            ch_widths = [pgram.widths[i] for i in np.argmax(pgram.snrs, axis = 1)[mask]]
 
-    time_series = TimeSeries.from_numpy_array(data, tsamp = tsamp)
-    if on and simulate:
-        time_series = time_series.normalise()
-        if frequency in injection:
-            fts = TimeSeries.generate(length=len(data)*tsamp, tsamp=tsamp, period=5.0, ducy=0.02, amplitude=100.0).normalise()
-            time_series = TimeSeries.from_numpy_array(time_series.data + fts.data, tsamp = tsamp).normalise()
-    ts, pgram = ffa_search(time_series, rmed_width=4.0, period_min=period_range[0], period_max=period_range[1], bins_min=2, bins_max=260)
-    mask = pgram.snrs.max(axis = 1) >= cutoff
-    periods = pgram.periods[mask]
+            select_chans.append(start_ch+ch)
+            select_radiofreqs.append(freqs_GHz[ch])
+            periods.append(ch_periods)
+            widths.append(ch_widths)
+            snrs.append(ch_snrs)
 
-    if not on:
-        return periods
-    else:
-        frequencies = np.ones(len(pgram.periods[mask])) * frequency
-        snrs = pgram.snrs.max(axis = 1)[mask]
-        best_period = pgram.periods[np.argmax(pgram.snrs.max(axis=1))]
-        best_widths = [pgram.widths[i] for i in np.argmax(pgram.snrs, axis = 1)[mask]]
-        min_widths = [min(pgram.widths) for w in best_widths]
-        max_widths = [max(pgram.widths) for w in best_widths]
-        return periods, frequencies, snrs, best_period, best_widths, min_widths, max_widths
+    return select_chans, select_radiofreqs, periods, widths, snrs
 #########################################################################
