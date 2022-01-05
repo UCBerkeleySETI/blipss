@@ -14,6 +14,7 @@ from blimpy import Waterfall
 from mpi4py import MPI
 import numpy as np
 import os, logging, time, sys, glob
+from argparse import ArgumentParser
 #########################################################################
 # Set up default values for keys of the dictionary "hotpotato".
 def set_defaults(hotpotato):
@@ -32,7 +33,7 @@ def set_defaults(hotpotato):
     """
     # Availability of OFF data
     if hotpotato['have_off']=='':
-        hotpotato['have_off'] = False    
+        hotpotato['have_off'] = False
     # Default output path
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
@@ -104,18 +105,20 @@ def __MPI_MAIN__(parser):
         N_on = len(ON_files)
         print('No. of ON files = %d'% (N_on))
         # List of OFF files
-        OFF_files = sorted(glob.glob(hotpotato['DATA_DIR'] + '/' + hotpotato['off_files_glob']))
-        N_off = len(OFF_files)
-        print('No. of OFF files = %d'% (N_off))
+        if hotpotato['have_off']:
+            OFF_files = sorted(glob.glob(hotpotato['DATA_DIR'] + '/' + hotpotato['off_files_glob']))
+            N_off = len(OFF_files)
+            print('No. of OFF files = %d'% (N_off))
 
+        print('FINISHING RANK 0')
         # Calculate total run time for the code.
         prog_end_time = time.time()
         run_time = (prog_end_time - prog_start_time)/60.0
         parent_logger.info('Code run time = %.5f minutes'% (run_time))
-        print('FINISHING RANK 0')
     else:
         # Receive data from parent processsor.
-
+        print('STARTING RANK: ',rank)
+        print('FINISHING RANK: ',rank)
 
 #########################################################################
 def usage():
