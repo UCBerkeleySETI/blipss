@@ -1,5 +1,5 @@
 # Helper functions to perform various tasks.
-from read_data import read_watfile
+from .read_data import read_watfile
 from riptide import TimeSeries, ffa_search
 import numpy as np
 #########################################################################
