@@ -1,6 +1,7 @@
 # Helper functions to perform various tasks.
 from .read_data import read_watfile
 from riptide import TimeSeries, ffa_search
+from tqdm import tqdm
 import numpy as np
 #########################################################################
 def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, bins_min, bins_max, ducy_max, deredden_flag, rmed_width, SNR_threshold, mem_load, return_radiofreq_limits=True):
@@ -53,26 +54,26 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
 
     Returns
     -------
-    select_chans: List
-         List of channel indices in which significant periodic signals were detected
+    select_chans: 1D Numpy array
+         Channel indices at which significant periodic signals were detected
 
-    select_radiofreqs: List
-         List of radio frequencies (GHz) at which significant periodic signals were detected
+    select_radiofreqs: 1D Numpy array
+         Radio frequencies (GHz) at which significant periodic signals were detected
 
-    periods: List
-         List of periods (s) detected in above channels
+    periods: 1D Numpy array
+         Trial periods (s) of detected signals
 
-    width: List
-         List of Boxcar filter widths (no. of phase bins) yielding greatest S/N in matched filtering detection of folded profile at detected periods
+    snrs: 1D Numpy array
+         Maximum matched filtering S/N values returned at detected periods.
 
-    snrs: List
-         List of matched filtering S/N values returned at detected periods.
+    best_widths: 1D Numpy array
+         Best trial Boxcar filter widths (no. of phase bins) that yield the greatest matched filtering S/N of folded profiles at respective detected periods
 
     min_radiofreq: float
-         Low radio frequency limit (GHz) of FFA-searched data
+         Low radio frequency limit (GHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
 
     max_radiofreq: float
-         High radio frequency limit (GHz) of FFA-searched data
+         High radio frequency limit (GHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
     """
     # Read in datafile contents.
     wat = read_watfile(datafile, mem_load)
@@ -94,12 +95,12 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     max_radiofreq = np.max(freqs_GHz) # High radio frequency (GHz) limit of FFA-searched data
 
     # Loop over channels and run FFA search on a per-channel basis.
-    select_chans = []
-    select_radiofreqs = []
-    periods = []
-    snrs = []
-    widths = []
-    for ch in range(nchans):
+    select_chans = np.array([])
+    periods = np.array([])
+    snrs = np.array([])
+    best_widths = np.array([]) # Best trial width of boxcar filter that matches the FWHM of the folded profile for a given trial period
+    # Use tqddm to track completion progress within "for" loop.
+    for ch in tqdm(range(nchans)):
         orig_ts = TimeSeries.from_numpy_array(data[ch], tsamp=tsamp)
         detrended_ts, pgram = ffa_search(orig_ts, period_min=min_period, period_max=max_period, fpmin=fpmin, bins_min=bins_min,
                                          bins_max=bins_max, ducy_max=ducy_max, deredden=deredden_flag, rmed_width=rmed_width, already_normalised=False)
@@ -110,14 +111,20 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
             ch_snrs = list(pgram.snrs.max(axis=1)[mask])
             ch_widths = [pgram.widths[i] for i in np.argmax(pgram.snrs, axis = 1)[mask]]
 
-            select_chans.append(start_ch+ch)
-            select_radiofreqs.append(freqs_GHz[ch])
-            periods.append(ch_periods)
-            widths.append(ch_widths)
-            snrs.append(ch_snrs)
+            select_chans = np.append(select_chans, [start_ch+ch]*len(ch_periods))
+            periods = np.append(periods, ch_periods)
+            snrs = np.append(snrs, ch_snrs)
+            best_widths = np.append(best_widths, ch_widths)
+
+    # Set array types.
+    select_chans = np.array(select_chans, dtype=int)
+    periods = np.array(periods, dtype=np.float64)
+    snrs = np.array(snrs, dtype=np.float64)
+    best_widths = np.array(best_widths, dtype=int)
+    select_radiofreqs = freqs_GHz[select_chans]
 
     if return_radiofreq_limits:
-        return select_chans, select_radiofreqs, periods, widths, snrs, min_radiofreq, max_radiofreq
+        return select_chans, select_radiofreqs, periods, snrs, best_widths, min_radiofreq, max_radiofreq
     else:
-        return select_chans, select_radiofreqs, periods, widths, snrs
+        return select_chans, select_radiofreqs, periods, snrs, best_widths
 #########################################################################
