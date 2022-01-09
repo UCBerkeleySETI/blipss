@@ -50,7 +50,7 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
          Maximum data size in GB allowed in memory (default: 1 GB)
 
     return_radiofreq_limits: boolean
-         Do you want to return the radio frequency limits (GHz) of the searched data?
+         Do you want to return the radio frequency limits (MHz) of the searched data?
 
     Returns
     -------
@@ -58,7 +58,7 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
          Channel indices at which significant periodic signals were detected
 
     select_radiofreqs: 1D Numpy array
-         Radio frequencies (GHz) at which significant periodic signals were detected
+         Radio frequencies (MHz) at which significant periodic signals were detected
 
     periods: 1D Numpy array
          Trial periods (s) of detected signals
@@ -70,18 +70,18 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
          Best trial Boxcar filter widths (no. of phase bins) that yield the greatest matched filtering S/N of folded profiles at respective detected periods
 
     min_radiofreq: float
-         Low radio frequency limit (GHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
+         Low radio frequency limit (MHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
 
     max_radiofreq: float
-         High radio frequency limit (GHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
+         High radio frequency limit (MHz) of FFA-searched data. Value returned only if return_radiofreq_limits=True.
     """
     # Read in datafile contents.
     wat = read_watfile(datafile, mem_load)
     # Gather relevant metadata.
     nchans = wat.header['nchans'] # No. of spectral channels
     tsamp = wat.header['tsamp'] # Sampling time (s)
-    # 1D array of radio frequencies (GHz)
-    freqs_GHz = (wat.header['fch1'] + np.arange(nchans)*wat.header['foff'])*1.e-3
+    # 1D array of radio frequencies (MHz)
+    freqs_MHz = wat.header['fch1'] + np.arange(nchans)*wat.header['foff']
 
     # Clip off edge channels.
     if stop_ch is None:
@@ -90,9 +90,9 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     data = wat.data[:,0,start_ch:stop_ch].T # data.shape = (nchans, nsamples)
     # Revise radio frequency coverage and channel count to reflect properties of the clipped data.
     nchans = len(data)
-    freqs_GHz = freqs_GHz[start_ch:stop_ch]
-    min_radiofreq = np.min(freqs_GHz) # Low radio frequency (GHz) limit of FFA-searched data
-    max_radiofreq = np.max(freqs_GHz) # High radio frequency (GHz) limit of FFA-searched data
+    freqs_MHz = freqs_MHz[start_ch:stop_ch]
+    min_radiofreq = np.min(freqs_MHz) # Low radio frequency (MHz) limit of FFA-searched data
+    max_radiofreq = np.max(freqs_MHz) # High radio frequency (MHz) limit of FFA-searched data
 
     # Loop over channels and run FFA search on a per-channel basis.
     select_chans = np.array([])
@@ -121,7 +121,7 @@ def periodic_helper(datafile, start_ch, stop_ch, min_period, max_period, fpmin, 
     periods = np.array(periods, dtype=np.float64)
     snrs = np.array(snrs, dtype=np.float64)
     best_widths = np.array(best_widths, dtype=int)
-    select_radiofreqs = freqs_GHz[select_chans]
+    select_radiofreqs = freqs_MHz[select_chans-start_ch]
 
     if return_radiofreq_limits:
         return select_chans, select_radiofreqs, periods, snrs, best_widths, min_radiofreq, max_radiofreq
