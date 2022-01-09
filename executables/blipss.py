@@ -87,7 +87,8 @@ def __MPI_MAIN__(parser):
 
     # Parent processor
     if rank==0:
-        print('STARTING RANK 0')
+        parent_logger = setup_logger_stdout() # Set logger output to stdout().
+        parent_logger.info('STARTING RANK 0')
         # Profile code execution.
         prog_start_time = time.time()
 
@@ -98,8 +99,7 @@ def __MPI_MAIN__(parser):
         # Read inputs from config file and set default parameter values, if applicable.
         hotpotato = read_config(inputs_cfg)
         hotpotato = set_defaults(hotpotato)
-        parent_logger = setup_logger_stdout() # Set logger output to stdout().
-
+        
         # Create output path if non-existent.
         create_dir(hotpotato['OUTPUT_DIR'])
 
@@ -136,7 +136,7 @@ def __MPI_MAIN__(parser):
             distributed_label_list = np.array_split(np.array(file_labels), nproc)
             # Send calls to child processors.
             for indx in range(1,nproc):
-                comm.send((distributed_file_list[indx-1], distributed_label_list[indx-1], hotpotato) dest=indx, tag=indx)
+                comm.send((distributed_file_list[indx-1], distributed_label_list[indx-1], hotpotato), dest=indx, tag=indx)
             # Run tasks assigned to parent processor.
             for j in range(len(distributed_file_list[-1])):
                 select_chans, select_radiofreqs, periods, snrs, best_widths, min_radiofreq, max_radiofreq = periodic_helper(distributed_file_list[-1][j], hotpotato['start_ch'], hotpotato['stop_ch'],
@@ -147,25 +147,24 @@ def __MPI_MAIN__(parser):
                 parent_logger.info('FFA search completed on %s file:\n %s'% (distributed_label_list[-1][j], distributed_file_list[-1][j]))
             comm.Barrier() # Wait for all child processors to complete respective calls.
 
-        print('FINISHING RANK 0')
         # Calculate total run time for the code.
         prog_end_time = time.time()
         run_time = (prog_end_time - prog_start_time)/60.0
         parent_logger.info('Code run time = %.5f minutes'% (run_time))
+        parent_logger.info('FINISHING RANK 0')
     else:
         child_logger = setup_logger_stdout() # Set up separate logger for each child processor.
         # Receive data from parent processsor.
         child_logger.info('STARTING RANK: %d'% (rank))
         # Recieve data from parent processor.
-        file_list, label_list, hotpotatos = comm.recv(source=0, tag=rank)
+        file_list, label_list, hotpotato = comm.recv(source=0, tag=rank)
         for counter in range(len(file_list)):
-                select_chans, select_radiofreqs, periods, snrs, best_widths, min_radiofreq, max_radiofreq = periodic_helper(file_list[counter], hotpotato['start_ch'], hotpotato['stop_ch'],
+            select_chans, select_radiofreqs, periods, snrs, best_widths, min_radiofreq, max_radiofreq = periodic_helper(file_list[counter], hotpotato['start_ch'], hotpotato['stop_ch'],
                                                                                                                             hotpotato['min_period'], hotpotato['max_period'], hotpotato['fpmin'],
                                                                                                                             hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
                                                                                                                             hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
                                                                                                                             hotpotato['mem_load'], return_radiofreq_limits=True)
-                child_logger.info('FFA search completed on %s file:\n %s'% (label_list[counter], file_list[counter]))
-
+            child_logger.info('FFA search completed on %s file:\n %s'% (label_list[counter], file_list[counter]))
         child_logger.info('FINISHING RANK: %d'% (rank))
         comm.Barrier() # Wait for all processors to complete their respective calls.
 #########################################################################
