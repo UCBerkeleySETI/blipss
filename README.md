@@ -16,7 +16,7 @@ Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS or `blip
 - matplotlib >= 3.1.0
 - mpi4py >= 3.1.1
 - numpy >= 1.18.1
-- ['riptide'](https://github.com/v-morello/riptide) >= 0.2.3
+- [`riptide`](https://github.com/v-morello/riptide) >= 0.2.3
 - scipy >= 1.6.0
 - tqdm >= 4.32.1
 
