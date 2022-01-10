@@ -1,4 +1,4 @@
-# blipss
+# BLIPSS
 Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS or `blipss`) is a software pipeline that utilizes the Fast Folding Algorithm (FFA) in [`riptide`](https://github.com/v-morello/riptide) to search for channel-wide periodic signals in radio dynamic spectra.
 
 ---
