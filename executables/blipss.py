@@ -88,7 +88,7 @@ def __MPI_MAIN__(parser):
     # Parent processor
     if rank==0:
         parent_logger = setup_logger_stdout() # Set logger output to stdout().
-        parent_logger.info('STARTING RANK 0')
+        parent_logger.info('STARTING RANK: 0')
         # Profile code execution.
         prog_start_time = time.time()
 
@@ -99,7 +99,7 @@ def __MPI_MAIN__(parser):
         # Read inputs from config file and set default parameter values, if applicable.
         hotpotato = read_config(inputs_cfg)
         hotpotato = set_defaults(hotpotato)
-        
+
         # Create output path if non-existent.
         create_dir(hotpotato['OUTPUT_DIR'])
 
@@ -151,7 +151,7 @@ def __MPI_MAIN__(parser):
         prog_end_time = time.time()
         run_time = (prog_end_time - prog_start_time)/60.0
         parent_logger.info('Code run time = %.5f minutes'% (run_time))
-        parent_logger.info('FINISHING RANK 0')
+        parent_logger.info('FINISHING RANK: 0')
     else:
         child_logger = setup_logger_stdout() # Set up separate logger for each child processor.
         # Receive data from parent processsor.
