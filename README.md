@@ -10,13 +10,13 @@ Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS or `blip
 - [Troubleshooting](#troubleshooting)
 
 ## Package Dependencies <a name="dependencies"></a>
-```blipss``` is written in Python 3, and has the following package dependencies.
+```blipss``` is written in Python 3.8.5, and has the following package dependencies.
 - astropy >= 4.0
 - [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) >= 2.0.0
 - matplotlib >= 3.1.0
 - mpi4py >= 3.1.1
 - numpy >= 1.18.1
-- [`riptide`](https://github.com/v-morello/riptide) >= 0.2.3
+- [`riptide-ffa`](https://github.com/v-morello/riptide) >= 0.2.3
 - scipy >= 1.6.0
 - tqdm >= 4.32.1
 
