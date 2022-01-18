@@ -28,9 +28,11 @@ git clone git@github.com:akshaysuresh1/blipss.git
 2. Verify that your local Python 3 installation satisfies all dependencies of ```blipss```. If not, either manually install the missing dependencies or run the below calls.
 ```
 cd blipss
+pip install pybind11
 python setup.py install
 python setup.py clean
 ```
+Note: `pybind11` is a prerequisite for installing [`riptide-ffa`](https://github.com/v-morello/riptide).
 
 ## Usage <a name="usage"></a>
 TBD.

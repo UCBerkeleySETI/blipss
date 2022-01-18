@@ -17,13 +17,13 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
-install_requires = [
+install_requires = ['pybind11',
         'astropy>=4.0',
         'blimpy>=2.0.0',
         'matplotlib>=3.1.0',
         'mpi4py>=3.1.1',
         'numpy>=1.18.1',
-        'riptide-ffa>=0.2.3',
+        'riptide-ffa',
         'scipy>=1.6.0',
         'tqdm>=4.32.1'
 ]
