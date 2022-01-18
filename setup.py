@@ -17,7 +17,7 @@ class CleanCommand(Command):
     def run(self):
         os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
 
-install_requires = ['pybind11',
+install_requires = [
         'astropy>=4.0',
         'blimpy>=2.0.0',
         'matplotlib>=3.1.0',
