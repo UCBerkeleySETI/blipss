@@ -50,13 +50,13 @@ To run an executable file, use the `-i` flag to supply its companion configurati
 python executables/inject_signal.py -i config/inject_signal.cfg
 ```
 Comments at the top of every executable file contain program execution syntax.
-  
+
 ## Functionalities and Usage <a name="usage"></a>
 The BLIPSS pipeline has three chief exectutable files, which are:
 1. ``blipss`` (Still under development) <a name="blipss"></a> <br>
 Presently, the `blipss.py` file executes channel-wise FFA on input data files (filterbank or hdf5). Here is a schematic representation of the existing workflow. <br>
 
-![BLIPSS workflow (Jan 18, 2022)](https://github.com/akshaysuresh1/blipss/blob/main/blipss_workflow_2022Jan18.png?raw=True)
+![BLIPSS workflow (Jan 18, 2022)](https://github.com/akshaysuresh1/blipss/blob/main/images/blipss_workflow_2022Jan18.png?raw=True)
 
 The current implementation takes about 35 min. to run on a single mid-resolution filterbank product (1.07 s sampling, 2.86 kHz, 1703936 channels). For processing multiple input files (1 or more ON + 1 or more OFF) in parallel, enable MPI via:
 ```
