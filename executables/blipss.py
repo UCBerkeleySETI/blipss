@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Primary executable script for the Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS)
+Run channel-wise FFA on a set of input files, and output one .csv file of candidates per input file.
 
 Run using the following syntax.
 mpiexec -n (nproc) python -m mpi4py blipss.py -i <Configuration script of inputs> | tee <Log file>
@@ -11,14 +11,88 @@ from __future__ import absolute_import
 from modules.general_utils import create_dir, setup_logger_stdout
 from modules.helper_func import periodic_helper
 from modules.read_config import read_config
+from modules.read_data import read_watfile
 # Load standard pacakages.
 from blimpy import Waterfall
 from mpi4py import MPI
 import numpy as np
-import os, logging, time, sys, glob
+import os, logging, time, sys, glob, csv
 from argparse import ArgumentParser
 #########################################################################
-# Set up default values for keys of the dictionary "hotpotato".
+def myexecute(datafile, hotpotato, logger):
+    """
+    Primary executable function called on each core. Reads input data, executes channel-wise FFA, removes harmonics, and save candidate information to disk.
+
+    Parameters
+    ----------
+    datafile : string
+         Name (including path) of input data file. Data file format must be readable by blimpy.
+
+    hotpotato : dictionary
+         Dictionary of input parameters read from a configuration script
+    """
+    # Extract basename from input data file name.
+    supported_ext = ['.fil', '.h5'] # File extensions for filterbank and hd5 files
+    if '/' in datafile:
+        basename = datafile.split('/')[-1]
+    for ext in supported_ext:
+        if ext in basename:
+            basename = basename.split(ext)[0]
+
+    # Read input data as a Waterfall object.
+    # NOTE: In future, the following line can be replaced by a more efficient read functionality, if available.
+    wat = read_watfile(datafile, hotpotato['mem_load'])
+
+    # Default data shape in Waterfall objects = (nsamples, npol, nchans)
+    # Reshape data to (nchans, nsamples), assuming index 0 of npol refers to Stokes-I.
+    data = wat.data[:,0,:].T
+
+    # Clip off edge channels.
+    if hotpotato['stop_ch'] is None:
+        hotpotato['stop_ch'] = len(data)
+    # Start channel included, stop channel excluded.
+    data = data[ hotpotato['start_ch'] : hotpotato['stop_ch'] ]
+
+    # Extract relevant metadata from header.
+    tsamp = wat.header['tsamp'] # Sampling time (s)
+    freqs_MHz = wat.header['fch1'] + np.arange()*wat.header['foff'] # 1D array of radio frequencies (MHz)
+
+    # Run channel-wise FFA and return properties of detected candidates.
+    logger.info('Running channel-wise FFA on basename %s'% (basename))
+    cand_chans, cand_periods, cand_snrs, cand_bins, cand_best_widths = periodic_helper(data, hotpotato['start_ch'], tsamp,
+                                                                                       hotpotato['min_period'], hotpotato['max_period'], hotpotato['fpmin'],
+                                                                                       hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
+                                                                                       hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
+                                                                                       hotpotato['mem_load'])
+    logger.info('%d canidates found in %s'% (basename))
+    logger.info('FFA completed on %s'% (basename))
+
+    # Convert channel numbers to radio frequencies (MHz).
+    cand_radiofreqs = freqs_MHz[cand_chans]
+
+    # TO DO: IDENTIFY AND LABEL HARMONICS ('H' for harmonic, 'F' for fundamental)
+    cand_harmonicflag = np.array(['H']*len(cand_chans))
+
+    # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
+    if hotpotato['do_plot']:
+        logger.info('Producing scatter plot for %s'% (basename))
+
+    # Construct output .csv file name.
+    output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
+    # Define structure of .csv file.
+    header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic?']
+    columns = [cand_chans, cand_radiofreqs, cand_bins, cand_best_widths, cand_periods, cand_snrs, cand_harmonicflag]
+    zipped_rows = zip(*columns)
+
+    # Write .csv file with specified columns.
+    logger.info('Writing .csv output: %s'% (output_csv_name))
+    with open(output_csv_name,'w') as csvfile:
+    	writer = csv.writer(csvfile,delimiter=',')
+    	writer.writerow(header)
+    	for line in zipped_rows:
+    			writer.writerow(line)
+
+#########################################################################
 def set_defaults(hotpotato):
     """
     Set default values for keys in a dictionary of input parameters.
@@ -33,13 +107,13 @@ def set_defaults(hotpotato):
     hotpotato : dictionary
         Input dictionary with keys set to default values
     """
-    # Availability of OFF data
-    if hotpotato['have_off']=='':
-        hotpotato['have_off'] = False
     # Default output path
     if hotpotato['OUTPUT_DIR']=='':
         hotpotato['OUTPUT_DIR'] = hotpotato['DATA_DIR']
-    # Default plot format = '.png'
+    # Default plotting setting = False
+    if hotpotato['do_plot']=='':
+        hotpotato['do_plot'] = False
+    # Default plot format = ['.png']
     if hotpotato['plot_formats']=='' or hotpotato['plot_formats']==[]:
         hotpotato['plot_formats'] = ['.png']
     # Start channel for FFA search
@@ -174,7 +248,7 @@ def usage():
     return """
 usage: mpiexec -n (nproc) python -m mpi4py blipss.py [-h] -i INPUTS_CFG
 
-BLIPSS runs a fast folding algorithm on a per-channel basis to detect periodic signals in dynamic spectra.
+Run the fast folding algorithm (FFA) on a per-channel basis for a set of input files, and output one .csv file of candidates per input file.
 
 required arguments:
 -i INPUTS_CFG  Configuration script of inputs
@@ -184,7 +258,7 @@ optional arguments:
 ##############################################################################
 def main():
     """ Command line tool for BLIPSS"""
-    parser = ArgumentParser(description="Breakthrough Listen Investigation for Periodic Spectral Signals",usage=usage(),add_help=False)
+    parser = ArgumentParser(description="Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS)",usage=usage(),add_help=False)
     optional = parser._action_groups.pop()
     required = parser.add_argument_group('required arguments')
     required.add_argument('-i', action='store', required=True, dest='inputs_cfg', type=str,
