@@ -95,8 +95,8 @@ def periodic_helper(data, start_ch, tsamp, min_period, max_period, fpmin, bins_m
 
     # Set array types.
     cand_chans = np.array(cand_chans, dtype=int)
-    cand_periods = np.array(cand_periods, dtype=np.float64)
-    cand_snrs = np.array(cand_snrs, dtype=np.float64)
+    cand_periods = np.round(np.array(cand_periods, dtype=np.float64), 5)
+    cand_snrs = np.round(np.array(cand_snrs, dtype=np.float64), 5)
     cand_bins = np.array(cand_bins, dtype=int)
     cand_best_widths = np.array(cand_best_widths, dtype=int)
 

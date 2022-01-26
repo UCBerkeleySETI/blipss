@@ -45,12 +45,8 @@ def myexecute(inputs_cfg):
     # Median bandpass
     logger.info('Computing median bandpass')
     median_bp = np.median(data, axis=1)
-    # Bandpass correction
-    data = (data - median_bp[:,None])/median_bp[:,None]
-    logger.info('Bandpass correction done.')
-    # Normalize the data in each channel to zero median and unit variance.
-    data = (data - np.median(data, axis=1)[:,None])/np.std(data, axis=1)[:,None]
-    logger.info('Channel-wise data normalized to zero mean and unit variance.')
+    # Per-channel standard deviation
+    std_perchan = np.std(data, axis=1)
 
     # Inject boxcar periodic signals of constant amplitude.
     N_inject = len(hotpotato['inject_channels'])
@@ -58,8 +54,8 @@ def myexecute(inputs_cfg):
         chan = hotpotato['inject_channels'][i] # Channel index into which a periodic signal must be injected
         phi = times/hotpotato['periods'][i] % 1.0 # Convert times to phase values.
         indices = np.where( np.logical_and(phi>=hotpotato['initial_phase'][i]-0.5*hotpotato['duty_cycles'][i], phi<hotpotato['initial_phase'][i]+0.5*hotpotato['duty_cycles'][i]) )
-        # Injected signal =
-        data[chan, indices] += hotpotato['pulse_SNR'][i]
+        # Injected signal = Median bandpass + (Pulse S/N) * Standard deviation
+        data[chan, indices] += (median_bp[chan] + hotpotato['pulse_SNR'][i] * std_perchan[chan])
         logger.info('Injected P = %.2f s signal into channel %d.'% (hotpotato['periods'][i], chan))
     wat.data = data.T.reshape((Nsamples, wat.header['nifs'], Nchans))
 

@@ -55,7 +55,7 @@ def myexecute(datafile, hotpotato, logger):
 
     # Extract relevant metadata from header.
     tsamp = wat.header['tsamp'] # Sampling time (s)
-    freqs_MHz = wat.header['fch1'] + np.arange()*wat.header['foff'] # 1D array of radio frequencies (MHz)
+    freqs_MHz = wat.header['fch1'] + np.arange(wat.header['nchans'])*wat.header['foff'] # 1D array of radio frequencies (MHz)
 
     # Run channel-wise FFA and return properties of detected candidates.
     logger.info('Running channel-wise FFA on basename %s'% (basename))
@@ -64,33 +64,38 @@ def myexecute(datafile, hotpotato, logger):
                                                                                        hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
                                                                                        hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
                                                                                        hotpotato['mem_load'])
-    logger.info('%d canidates found in %s'% (basename))
-    logger.info('FFA completed on %s'% (basename))
+    N_cands = len(cand_periods)
+    print('\nFFA completed on %s'% (basename))
+    logger.info('%d canidates found in %s'% (N_cands, basename))
 
-    # Convert channel numbers to radio frequencies (MHz).
-    cand_radiofreqs = freqs_MHz[cand_chans]
+    if N_cands >0:
+        # Convert channel numbers to radio frequencies (MHz).
+        cand_radiofreqs = freqs_MHz[cand_chans]
 
-    # TO DO: IDENTIFY AND LABEL HARMONICS ('H' for harmonic, 'F' for fundamental)
-    cand_harmonicflag = np.array(['H']*len(cand_chans))
+        # TO DO: IDENTIFY AND LABEL HARMONICS ('H' for harmonic, 'F' for fundamental)
+        cand_harmonicflag = np.array(['H']*len(cand_chans))
 
-    # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
-    if hotpotato['do_plot']:
-        logger.info('Producing scatter plot for %s'% (basename))
+        # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
+        if hotpotato['do_plot']:
+            logger.info('Producing scatter plot for %s'% (basename))
 
-    # Construct output .csv file name.
-    output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
-    # Define structure of .csv file.
-    header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic?']
-    columns = [cand_chans, cand_radiofreqs, cand_bins, cand_best_widths, cand_periods, cand_snrs, cand_harmonicflag]
-    zipped_rows = zip(*columns)
+        # Sort candidates in order of decreasing S/N.
+        sort_idx =  np.argsort(cand_snrs)[::-1]
 
-    # Write .csv file with specified columns.
-    logger.info('Writing .csv output: %s'% (output_csv_name))
-    with open(output_csv_name,'w') as csvfile:
-    	writer = csv.writer(csvfile,delimiter=',')
-    	writer.writerow(header)
-    	for line in zipped_rows:
-    			writer.writerow(line)
+        # Construct output .csv file name.
+        output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
+        # Define structure of .csv file. Write candidates in order of decreasing S/N.
+        header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic?']
+        columns = [cand_chans[sort_idx], cand_radiofreqs[sort_idx], cand_bins[sort_idx], cand_best_widths[sort_idx], cand_periods[sort_idx], cand_snrs[sort_idx], cand_harmonicflag[sort_idx]]
+        zipped_rows = zip(*columns)
+
+        # Write .csv file with specified columns.
+        logger.info('Writing .csv output: %s'% (output_csv_name))
+        with open(output_csv_name,'w') as csvfile:
+            writer = csv.writer(csvfile,delimiter=',')
+            writer.writerow(header)
+            for line in zipped_rows:
+                writer.writerow(line)
 
 #########################################################################
 def set_defaults(hotpotato):
@@ -202,8 +207,9 @@ def __MPI_MAIN__(parser):
         # Calculate total run time for the code.
         prog_end_time = time.time()
         run_time = (prog_end_time - prog_start_time)/60.0
-        parent_logger.info('Code run time = %.3f minutes'% (run_time))
         parent_logger.info('FINISHING RANK: 0')
+        parent_logger.info('Code run time = %.3f minutes'% (run_time))
+
     else:
         child_logger = setup_logger_stdout() # Set up separate logger for each child processor.
         child_logger.info('STARTING RANK: %d'% (rank))
