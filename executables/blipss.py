@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 '''
-Run channel-wise FFA on a set of input files, and output one .csv file of candidates per input file.
+Run channel-wise FFA on a set of input files, flag harmonics, and output one .csv file of candidates per input file.
 
 Run using the following syntax.
 mpiexec -n (nproc) python -m mpi4py blipss.py -i <Configuration script of inputs> | tee <Log file>
@@ -9,7 +9,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 # Import custom modules.
 from modules.general_utils import create_dir, setup_logger_stdout
-from modules.helper_func import periodic_helper
+from modules.period_finding import periodic_helper
 from modules.read_config import read_config
 from modules.read_data import read_watfile
 # Load standard pacakages.
@@ -21,7 +21,7 @@ from argparse import ArgumentParser
 #########################################################################
 def myexecute(datafile, hotpotato, logger):
     """
-    Primary executable function called on each core. Reads input data, executes channel-wise FFA, removes harmonics, and save candidate information to disk.
+    Primary executable function called on each core. Reads input data, executes channel-wise FFA, labels harmonics, and save candidate information to disk.
 
     Parameters
     ----------
@@ -57,13 +57,13 @@ def myexecute(datafile, hotpotato, logger):
     tsamp = wat.header['tsamp'] # Sampling time (s)
     freqs_MHz = wat.header['fch1'] + np.arange(wat.header['nchans'])*wat.header['foff'] # 1D array of radio frequencies (MHz)
 
-    # Run channel-wise FFA and return properties of detected candidates.
+    # Run channel-wise FFA, label harmonics, and return properties of detected candidates.
     logger.info('Running channel-wise FFA on basename %s'% (basename))
-    cand_chans, cand_periods, cand_snrs, cand_bins, cand_best_widths = periodic_helper(data, hotpotato['start_ch'], tsamp,
-                                                                                       hotpotato['min_period'], hotpotato['max_period'], hotpotato['fpmin'],
-                                                                                       hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
-                                                                                       hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
-                                                                                       hotpotato['mem_load'])
+    cand_chans, cand_periods, cand_snrs, cand_bins, cand_best_widths, cand_flags = periodic_helper(data, hotpotato['start_ch'], tsamp,
+                                                                                                   hotpotato['min_period'], hotpotato['max_period'], hotpotato['fpmin'],
+                                                                                                   hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
+                                                                                                   hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
+                                                                                                   hotpotato['mem_load'])
     N_cands = len(cand_periods)
     print('\nFFA completed on %s'% (basename))
     logger.info('%d canidates found in %s'% (N_cands, basename))
@@ -71,9 +71,6 @@ def myexecute(datafile, hotpotato, logger):
     if N_cands >0:
         # Convert channel numbers to radio frequencies (MHz).
         cand_radiofreqs = freqs_MHz[cand_chans]
-
-        # TO DO: IDENTIFY AND LABEL HARMONICS ('H' for harmonic, 'F' for fundamental)
-        cand_harmonicflag = np.array(['H']*len(cand_chans))
 
         # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
         if hotpotato['do_plot']:
@@ -85,8 +82,8 @@ def myexecute(datafile, hotpotato, logger):
         # Construct output .csv file name.
         output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
         # Define structure of .csv file. Write candidates in order of decreasing S/N.
-        header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic?']
-        columns = [cand_chans[sort_idx], cand_radiofreqs[sort_idx], cand_bins[sort_idx], cand_best_widths[sort_idx], cand_periods[sort_idx], cand_snrs[sort_idx], cand_harmonicflag[sort_idx]]
+        header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic flag']
+        columns = [cand_chans[sort_idx], cand_radiofreqs[sort_idx], cand_bins[sort_idx], cand_best_widths[sort_idx], cand_periods[sort_idx], cand_snrs[sort_idx], cand_flags[sort_idx]]
         zipped_rows = zip(*columns)
 
         # Write .csv file with specified columns.
@@ -226,7 +223,7 @@ def usage():
     return """
 usage: mpiexec -n (nproc) python -m mpi4py blipss.py [-h] -i INPUTS_CFG
 
-Run the fast folding algorithm (FFA) on a per-channel basis for a set of input files, and output one .csv file of candidates per input file.
+Run the fast folding algorithm (FFA) on a per-channel basis for a set of input files, label harmonics, and output one .csv file of candidates per input file.
 
 required arguments:
 -i INPUTS_CFG  Configuration script of inputs
