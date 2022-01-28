@@ -101,7 +101,7 @@ def periodic_helper(data, start_ch, tsamp, min_period, max_period, fpmin, bins_m
             ch_widths = ch_widths[sort_index_order]
 
             # Label harmonics.
-            harmonic_flags = label_harmonics(periods, snrs, epsilon, sorted=True)
+            harmonic_flags = label_harmonics(ch_periods, ch_snrs, epsilon, sorted=True)
 
             # Update grand arrays before execution moves to the next channel.
             cand_chans = np.append(cand_chans, [start_ch+ch]*len(ch_periods))

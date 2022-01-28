@@ -63,7 +63,7 @@ def myexecute(datafile, hotpotato, logger):
                                                                                                    hotpotato['min_period'], hotpotato['max_period'], hotpotato['fpmin'],
                                                                                                    hotpotato['bins_min'], hotpotato['bins_max'], hotpotato['ducy_max'],
                                                                                                    hotpotato['do_deredden'], hotpotato['rmed_width'], hotpotato['SNR_threshold'],
-                                                                                                   hotpotato['mem_load'])
+                                                                                                   hotpotato['epsilon'], hotpotato['mem_load'])
     N_cands = len(cand_periods)
     print('\nFFA completed on %s'% (basename))
     logger.info('%d canidates found in %s'% (N_cands, basename))
@@ -151,6 +151,9 @@ def set_defaults(hotpotato):
     # Default running median window width = 12 s
     if hotpotato['rmed_width']=='':
         hotpotato['rmed_width'] = 12.0
+    # Default epsilon = 1.0e-5
+    if hotpotato['epsilon']=='':
+        hotpotato['epsilon'] = 1.0e-5
     # Default memory load size = 1 GB
     if hotpotato['mem_load']=='':
         hotpotato['mem_load'] = 1.0
