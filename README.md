@@ -8,7 +8,7 @@ Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) is a so
 - [Installation](#installation)
 - [Repository Organization](#organization)
 - [Functionalities and Usage](#usage)
-    - [blipss.py](#blipss)
+    - [blipss.py](#blipss_exec)
     - [inject_signal.py](#injectsignal)
     - [simulate_data.py](#simulatedata)
     - ON vs. OFF comparison (under development)
@@ -57,7 +57,7 @@ Comments at the top of every executable file provide program execution syntax.
 
 ## Functionalities and Usage <a name="usage"></a>
 The BLIPSS pipeline currently has three chief exectutable files, which are:
-1. ``blipss.py`` <a name="blipss"></a> <br>
+1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 The `blipss.py` file executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
 ![BLIPSS workflow (Jan 27, 2022)](https://github.com/akshaysuresh1/blipss/blob/main/images/blipss_design_2022Jan27.png?raw=True)
