@@ -19,7 +19,6 @@ Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) is a so
 ```blipss``` is written in Python 3.8.5, and has the following package dependencies.
 - astropy >= 4.0
 - [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) >= 2.0.0
-- csv >= 1.0
 - matplotlib >= 3.1.0
 - mpi4py >= 3.1.1
 - numpy >= 1.18.1

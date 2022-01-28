@@ -20,7 +20,6 @@ class CleanCommand(Command):
 install_requires = [
         'astropy>=4.0',
         'blimpy>=2.0.0',
-        'csv>=1.0',
         'matplotlib>=3.1.0',
         'mpi4py>=3.1.1',
         'numpy>=1.18.1',
