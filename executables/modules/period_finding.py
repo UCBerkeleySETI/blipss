@@ -61,7 +61,7 @@ def periodic_helper(data, start_ch, tsamp, min_period, max_period, fpmin, bins_m
         Trial periods (s) of detected signals
 
     cand_snrs: 1D Numpy array
-        Maximum matched filtering S/N values returned at detected periods.
+        Maximum matched filtering S/N values returned at detected periods
 
     cand_bins: 1D Numpy array
         No. of bins used to produce folded profile of the candidate

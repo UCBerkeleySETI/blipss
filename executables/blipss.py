@@ -10,6 +10,7 @@ from __future__ import absolute_import
 # Import custom modules.
 from modules.general_utils import create_dir, setup_logger_stdout
 from modules.period_finding import periodic_helper
+from modules.plotting import scatterplot_period_radiofreq
 from modules.read_config import read_config
 from modules.read_data import read_watfile
 # Load standard pacakages.
@@ -50,6 +51,7 @@ def myexecute(datafile, hotpotato, logger):
     # Clip off edge channels.
     if hotpotato['stop_ch'] is None:
         hotpotato['stop_ch'] = len(data)
+    final_ch = hotpotato['stop_ch'] - 1 #  Final included channel
     # Start channel included, stop channel excluded.
     data = data[ hotpotato['start_ch'] : hotpotato['stop_ch'] ]
 
@@ -72,18 +74,25 @@ def myexecute(datafile, hotpotato, logger):
         # Convert channel numbers to radio frequencies (MHz).
         cand_radiofreqs = freqs_MHz[cand_chans]
 
-        # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
-        if hotpotato['do_plot']:
-            logger.info('Producing scatter plot for %s'% (basename))
+        # Sort candidates in order of S/N.
+        sort_asc_idx =  np.argsort(cand_snrs)
+        sort_desc_idx = sort_asc_idx[::-1]
 
-        # Sort candidates in order of decreasing S/N.
-        sort_idx =  np.argsort(cand_snrs)[::-1]
+        # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
+        # Plot candidates in order of increasing S/N so that the highest S/N points are plotted last.
+        if hotpotato['do_plot']:
+            min_freq_limit = np.max([np.min(freqs_MHz), freqs_MHz[hotpotato['start_ch']]])
+            max_freq_limit = np.min([np.max(freqs_MHz), freqs_MHz[final_ch]])
+            logger.info('Producing scatter plot for %s'% (basename))
+            scatterplot_period_radiofreq(cand_periods[sort_asc_idx], cand_radiofreqs[sort_asc_idx], cand_snrs[sort_asc_idx], cand_flags[sort_asc_idx], hotpotato['OUTPUT_DIR'] + '/' + basename,
+                                         hotpotato['min_period'], hotpotato['max_period'], min_freq_limit, max_freq_limit, hotpotato['plot_formats'])
 
         # Construct output .csv file name.
         output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
         # Define structure of .csv file. Write candidates in order of decreasing S/N.
         header = ['Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Harmonic flag']
-        columns = [cand_chans[sort_idx], cand_radiofreqs[sort_idx], cand_bins[sort_idx], cand_best_widths[sort_idx], cand_periods[sort_idx], cand_snrs[sort_idx], cand_flags[sort_idx]]
+        # Write candidates to disk in order of decreasing S/N so that the highest S/N detections appear at the top of the file.
+        columns = [cand_chans[sort_desc_idx], cand_radiofreqs[sort_desc_idx], cand_bins[sort_desc_idx], cand_best_widths[sort_desc_idx], cand_periods[sort_desc_idx], cand_snrs[sort_desc_idx], cand_flags[sort_desc_idx]]
         zipped_rows = zip(*columns)
 
         # Write .csv file with specified columns.
