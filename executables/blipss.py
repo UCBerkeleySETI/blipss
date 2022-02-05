@@ -43,10 +43,19 @@ def myexecute(datafile, hotpotato, logger):
     # Read input data as a Waterfall object.
     # NOTE: In future, the following line can be replaced by a more efficient read functionality, if available.
     wat = read_watfile(datafile, hotpotato['mem_load'])
+    # Extract relevant metadata from header.
+    tsamp = wat.header['tsamp'] # Sampling time (s)
+    freqs_MHz = wat.header['fch1'] + np.arange(wat.header['nchans'])*wat.header['foff'] # 1D array of radio frequencies (MHz)
 
     # Default data shape in Waterfall objects = (nsamples, npol, nchans)
     # Reshape data to (nchans, nsamples), assuming index 0 of npol refers to Stokes-I.
     data = wat.data[:,0,:].T
+
+    # Invert band if channel bandwidth is negative.
+    if wat.header['foff'] < 0:
+        data = np.flip(data, axis=0)
+        wat.header['foff'] *= -1
+        freqs_MHz = np.flip(freqs_MHz)
 
     # Clip off edge channels.
     if hotpotato['stop_ch'] is None:
@@ -54,10 +63,6 @@ def myexecute(datafile, hotpotato, logger):
     final_ch = hotpotato['stop_ch'] - 1 #  Final included channel
     # Start channel included, stop channel excluded.
     data = data[ hotpotato['start_ch'] : hotpotato['stop_ch'] ]
-
-    # Extract relevant metadata from header.
-    tsamp = wat.header['tsamp'] # Sampling time (s)
-    freqs_MHz = wat.header['fch1'] + np.arange(wat.header['nchans'])*wat.header['foff'] # 1D array of radio frequencies (MHz)
 
     # Run channel-wise FFA, label harmonics, and return properties of detected candidates.
     logger.info('Running channel-wise FFA on basename %s'% (basename))
