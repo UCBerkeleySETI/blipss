@@ -24,7 +24,7 @@ install_requires = [
         'mpi4py>=3.1.1',
         'numpy>=1.18.1',
         'pandas>=1.3.4',
-        'riptide-ffa',
+        'riptide-ffa>=0.2.4',
         'scipy>=1.6.0',
         'tqdm>=4.32.1'
 ]
