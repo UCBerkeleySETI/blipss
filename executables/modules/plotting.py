@@ -27,7 +27,7 @@ def scatterplot_period_radiofreq(cand_periods, cand_freqs, cand_snrs, cand_flags
         Matched filtering S/N values of detected candidates
 
     cand_flags: 1D Numpy array
-        Harmonic flags ('F' or 'H') assigned to each candidate
+        Harmonic flags ('F', 'S', or 'H') assigned to each candidate
 
     basename: string
         Output plot basename, including output path
@@ -55,12 +55,16 @@ def scatterplot_period_radiofreq(cand_periods, cand_freqs, cand_snrs, cand_flags
     # Plot fundamental frequencies.
     f_idx = np.where(cand_flags=='F')[0]
     plt.scatter(x=cand_periods[f_idx], y=cand_freqs[f_idx], c=cand_snrs[f_idx], marker='o', cmap=cmap, norm=norm)
+    # Plot sub-harmonics.
+    subharm_idx = np.where(cand_flags=='S')[0]
+    plt.scatter(x=cand_periods[subharm_idx], y=cand_freqs[subharm_idx], c=cand_snrs[subharm_idx], marker='+', cmap=cmap, norm=norm)
     # Plot harmonics.
-    h_idx = np.where(cand_flags=='H')[0]
-    plt.scatter(x=cand_periods[h_idx], y=cand_freqs[h_idx], c=cand_snrs[h_idx], marker='o', cmap=cmap, norm=norm)
+    harm_idx = np.where(cand_flags=='H')[0]
+    plt.scatter(x=cand_periods[harm_idx], y=cand_freqs[harm_idx], c=cand_snrs[harm_idx], marker='x', cmap=cmap, norm=norm)
+    # Set up colorbar.
     cbar = plt.colorbar(plt.cm.ScalarMappable(cmap = cmap, norm = norm))
-    # Set axes labels.
     cbar.set_label('Matched filtering S/N', fontsize=16)
+    # Set axes labels.
     plt.xlabel('Trial folding period (s)', fontsize=16)
     plt.ylabel('Radio frequency (MHz)', fontsize=16)
     # Set tick properties.

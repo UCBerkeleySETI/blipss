@@ -165,9 +165,9 @@ def set_defaults(hotpotato):
     # Default running median window width = 12 s
     if hotpotato['rmed_width']=='':
         hotpotato['rmed_width'] = 12.0
-    # Default epsilon = 1.0e-5
+    # Default epsilon = 1.0e-3
     if hotpotato['epsilon']=='':
-        hotpotato['epsilon'] = 1.0e-5
+        hotpotato['epsilon'] = 1.0e-3
     # Default memory load size = 1 GB
     if hotpotato['mem_load']=='':
         hotpotato['mem_load'] = 1.0

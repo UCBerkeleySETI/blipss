@@ -1,6 +1,7 @@
 # Functions to search for unknown periodicities in data.
 from .harmonic_detection import label_harmonics
 from riptide import TimeSeries, ffa_search
+from riptide.clustering import cluster1d
 from tqdm import tqdm
 import numpy as np
 #########################################################################
@@ -93,22 +94,41 @@ def periodic_helper(data, start_ch, tsamp, min_period, max_period, fpmin, bins_m
             ch_bins = np.array(pgram.foldbins[mask], dtype=int)
             ch_widths = np.array([pgram.widths[i] for i in np.argmax(pgram.snrs, axis = 1)[mask]], dtype=int)
 
-            # Sort arrays in increasing order of folding period for harmonic identification.
+            # Sort arrays in increasing order of folding period for clustering search.
             sort_index_order = np.argsort(ch_periods)
             ch_periods = ch_periods[sort_index_order]
             ch_snrs = ch_snrs[sort_index_order]
             ch_bins = ch_bins[sort_index_order]
             ch_widths = ch_widths[sort_index_order]
+            # Group ch_periods into different clusters using a Friends-of-Friends algorithm.
+            cluster_indices = cluster1d(ch_periods, epsilon, already_sorted=True)
+            # Remove redundant detections per cluster by retaining only the period with the highest S/N.
+            final_periods = np.array([])
+            final_snrs = np.array([])
+            final_bins = np.array([])
+            final_widths = np.array([])
+            for indices in cluster_indices:
+                idx = indices[np.argmax(ch_snrs[indices])]
+                final_periods = np.append(final_periods, ch_periods[idx])
+                final_snrs = np.append(final_snrs, ch_snrs[idx])
+                final_bins = np.append(final_bins, ch_bins[idx])
+                final_widths = np.append(final_widths, ch_widths[idx])
 
+            # Sort arrays in order of decreasing S/N for harmonic identification.
+            sort_index_order = np.argsort(final_snrs)[::-1]
+            final_periods = final_periods[sort_index_order]
+            final_snrs = final_snrs[sort_index_order]
+            final_bins = final_bins[sort_index_order]
+            final_widths = final_widths[sort_index_order]
             # Label harmonics.
-            harmonic_flags = label_harmonics(ch_periods, ch_snrs, epsilon, sorted=True)
+            harmonic_flags = label_harmonics(final_periods, final_snrs, epsilon, sorted=True)
 
             # Update grand arrays before execution moves to the next channel.
-            cand_chans = np.append(cand_chans, [start_ch+ch]*len(ch_periods))
-            cand_periods = np.append(cand_periods, ch_periods)
-            cand_snrs = np.append(cand_snrs, ch_snrs)
-            cand_bins = np.append(cand_bins, ch_bins)
-            cand_best_widths = np.append(cand_best_widths, ch_widths)
+            cand_chans = np.append(cand_chans, [start_ch+ch]*len(final_periods))
+            cand_periods = np.append(cand_periods, final_periods)
+            cand_snrs = np.append(cand_snrs, final_snrs)
+            cand_bins = np.append(cand_bins, final_bins)
+            cand_best_widths = np.append(cand_best_widths, final_widths)
             cand_flags = np.append(cand_flags, harmonic_flags)
 
     # Explicitly, set array types and precision.
