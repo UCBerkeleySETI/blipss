@@ -56,17 +56,17 @@ def scatterplot_period_radiofreq(cand_periods, cand_freqs, cand_snrs, cand_flags
     # Plot fundamental frequencies.
     f_idx = np.where(cand_flags=='F')[0]
     if len(f_idx) > 0:
-        plt.scatter(x=cand_periods[f_idx], y=cand_freqs[f_idx], c=cand_snrs[f_idx], s=38, marker='o', cmap=cmap, norm=norm)
+        plt.scatter(x=cand_periods[f_idx], y=cand_freqs[f_idx], c=cand_snrs[f_idx], s=38, marker='o', cmap=cmap, norm=norm, label='Fundamental')
         marker_count += 1
     # Plot sub-harmonics.
     subharm_idx = np.where(cand_flags=='S')[0]
     if len(subharm_idx) > 0:
-        plt.scatter(x=cand_periods[subharm_idx], y=cand_freqs[subharm_idx], c=cand_snrs[subharm_idx], s=38, marker='+', cmap=cmap, norm=norm)
+        plt.scatter(x=cand_periods[subharm_idx], y=cand_freqs[subharm_idx], c=cand_snrs[subharm_idx], s=38, marker='+', cmap=cmap, norm=norm, label='Sub-harmonic')
         marker_count += 1
     # Plot harmonics.
     harm_idx = np.where(cand_flags=='H')[0]
     if len(harm_idx) > 0:
-        plt.scatter(x=cand_periods[harm_idx], y=cand_freqs[harm_idx], c=cand_snrs[harm_idx], s=38, marker='x', cmap=cmap, norm=norm)
+        plt.scatter(x=cand_periods[harm_idx], y=cand_freqs[harm_idx], c=cand_snrs[harm_idx], s=38, marker='x', cmap=cmap, norm=norm, label='Harmonic')
         marker_count += 1
     # Set up colorbar.
     cbar = plt.colorbar(plt.cm.ScalarMappable(cmap = cmap, norm = norm))
