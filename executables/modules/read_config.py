@@ -69,13 +69,15 @@ def remove_spaces(value):
 def convert_values(d):
     for x in d:
         if isinstance(d[x], str):
-            if is_bool(d[x]):
+            if d[x]=='':
+                continue
+            elif is_bool(d[x]):
                 d[x] = to_bool(d[x])
             elif is_int(d[x]):
                 d[x] = int(d[x])
             elif is_float(d[x]):
                 d[x] = float(d[x])
-            elif '[' and ']' in d[x]:
+            elif d[x][0]=='[' and d[x][-1]==']':
                 d[x] = eval(d[x])
             else:
                 continue
