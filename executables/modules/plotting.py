@@ -61,7 +61,7 @@ def scatterplot_period_radiofreq(cand_periods, cand_freqs, cand_snrs, cand_flags
     # Plot sub-harmonics.
     subharm_idx = np.where(cand_flags=='S')[0]
     if len(subharm_idx) > 0:
-        plt.scatter(x=cand_periods[subharm_idx], y=cand_freqs[subharm_idx], c=cand_snrs[subharm_idx], s=38, marker='+', cmap=cmap, norm=norm, label='Sub-harmonic')
+        plt.scatter(x=cand_periods[subharm_idx], y=cand_freqs[subharm_idx], c=cand_snrs[subharm_idx], s=38, marker='+', cmap=cmap, norm=norm, label='Subharmonic')
         marker_count += 1
     # Plot harmonics.
     harm_idx = np.where(cand_flags=='H')[0]
