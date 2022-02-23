@@ -73,7 +73,7 @@ def myexecute(datafile, hotpotato, logger):
                                                                                                    hotpotato['epsilon'], hotpotato['mem_load'])
     N_cands = len(cand_periods)
     print('\nFFA completed on %s'% (basename))
-    logger.info('%d canidates found in %s'% (N_cands, basename))
+    logger.info('%d candidates found in %s'% (N_cands, basename))
 
     if N_cands >0:
         # Convert channel numbers to radio frequencies (MHz).
@@ -82,15 +82,6 @@ def myexecute(datafile, hotpotato, logger):
         # Sort candidates in order of S/N.
         sort_asc_idx =  np.argsort(cand_snrs)
         sort_desc_idx = sort_asc_idx[::-1]
-
-        # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
-        # Plot candidates in order of increasing S/N so that the highest S/N points are plotted last.
-        if hotpotato['do_plot']:
-            min_freq_limit = np.max([np.min(freqs_MHz), freqs_MHz[hotpotato['start_ch']]])
-            max_freq_limit = np.min([np.max(freqs_MHz), freqs_MHz[final_ch]])
-            logger.info('Producing scatter plot for %s'% (basename))
-            scatterplot_period_radiofreq(cand_periods[sort_asc_idx], cand_radiofreqs[sort_asc_idx], cand_snrs[sort_asc_idx], cand_flags[sort_asc_idx], hotpotato['OUTPUT_DIR'] + '/' + basename,
-                                         hotpotato['min_period'], hotpotato['max_period'], min_freq_limit, max_freq_limit, hotpotato['plot_formats'])
 
         # Construct output .csv file name.
         output_csv_name = hotpotato['OUTPUT_DIR'] + '/' + basename + '_cands.csv'
@@ -108,6 +99,14 @@ def myexecute(datafile, hotpotato, logger):
             for line in zipped_rows:
                 writer.writerow(line)
 
+        # Scatter plot of candidate S/N in radio frequency vs. trial period diagram.
+        # Plot candidates in order of increasing S/N so that the highest S/N points are plotted last.
+        if hotpotato['do_plot']:
+            min_freq_limit = np.max([np.min(freqs_MHz), freqs_MHz[hotpotato['start_ch']]])
+            max_freq_limit = np.min([np.max(freqs_MHz), freqs_MHz[final_ch]])
+            logger.info('Producing scatter plot for %s'% (basename))
+            scatterplot_period_radiofreq(cand_periods[sort_asc_idx], cand_radiofreqs[sort_asc_idx], cand_snrs[sort_asc_idx], cand_flags[sort_asc_idx], hotpotato['OUTPUT_DIR'] + '/' + basename,
+                                         hotpotato['min_period'], hotpotato['max_period'], min_freq_limit, max_freq_limit, hotpotato['plot_formats'])
 #########################################################################
 def set_defaults(hotpotato):
     """
