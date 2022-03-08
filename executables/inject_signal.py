@@ -24,7 +24,7 @@ def myexecute(inputs_cfg):
     Parameters
     ----------
     inputs_cfg : str
-         Path to configuration script of inputs
+         configuration script of inputs
     """
     # Profile code execution.
     prog_start_time = time.time()
@@ -75,6 +75,7 @@ def myexecute(inputs_cfg):
     prog_end_time = time.time()
     run_time = (prog_end_time - prog_start_time)/60.0
     logger.info('Code run time = %.3f minutes'% (run_time))
+##############################################################
 
 def set_defaults(hotpotato):
     """
