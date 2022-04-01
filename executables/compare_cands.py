@@ -49,6 +49,8 @@ def myexecute(inputs_cfg):
     periods = np.array([], dtype=np.float64) # Candidate periods (s)
     snrs = np.array([], dtype=np.float64) # Candidate S/N
     flags = np.array([]) # Harmonic flags assigned to candidates
+    # Set up separate S/N thresholds for ON and OFF pointings.
+    snr_cutoff = {'ON': hotpotato['on_cutoff'], 'OFF': hotpotato['off_cutoff']}
     for i in range(N_files):
         df = pd.read_csv(hotpotato['CSV_DIR']+'/'+hotpotato['csv_list'][i], sep=',')
         logger.info('Reading file: %s'%  (hotpotato['csv_list'][i]))
@@ -59,8 +61,22 @@ def myexecute(inputs_cfg):
         cand_periods = np.array(df['Period (s)'], dtype=np.float64)
         cand_snrs = np.array(df['S/N'], dtype=np.float64)
         cand_flags = np.array(df['Harmonic flag'])
+
+        # Only retain fundamental periods with associated S/N values exceeding user-specified threshold.
+        print('Label = %s'% (hotpotato['labels'][i]))
+        threshold = snr_cutoff[hotpotato['labels'][i].upper()]
+        print('S/N threshold applied = %.1f'% (threshold))
+        filtered_indices = np.where(np.logical_and(cand_snrs>=threshold, cand_flags=='F'))[0]
+        cand_chans = cand_chans[filtered_indices]
+        cand_radiofreqs = cand_radiofreqs[filtered_indices]
+        cand_bins = cand_bins[filtered_indices]
+        cand_widths = cand_widths[filtered_indices]
+        cand_periods = cand_periods[filtered_indices]
+        cand_snrs = cand_snrs[filtered_indices]
+        cand_flags = cand_flags[filtered_indices]
         N_cands = len(cand_chans)
         print('No. of candidates = %d \n'% (N_cands))
+
         # Append to grand arrays.
         file_index = np.append(file_index, np.ones(N_cands)*i)
         chans = np.append(chans, cand_chans)
@@ -70,28 +86,7 @@ def myexecute(inputs_cfg):
         periods = np.append(periods, cand_periods)
         snrs = np.append(snrs, cand_snrs)
         flags = np.append(flags, cand_flags)
-    # Consider only those candidates whose matched filtering S/N exceeds the user-specified threshold.
-    chosen_cand_indices = np.where(snrs>=hotpotato['snr_cutoff'])[0]
-    logger.info('Selecting candidates with S/N >= %.1f'% (hotpotato['snr_cutoff']))
-    file_index = file_index[chosen_cand_indices]
-    chans = chans[chosen_cand_indices]
-    radiofreqs = radiofreqs[chosen_cand_indices]
-    bins = bins[chosen_cand_indices]
-    widths = widths[chosen_cand_indices]
-    periods = periods[chosen_cand_indices]
-    snrs = snrs[chosen_cand_indices]
-    flags = flags[chosen_cand_indices]
-    # Select only fundamental frequencies.
-    logger.info('Working with fundamental frequencies only')
-    f_idx = np.where(flags=='F')[0]
-    file_index = file_index[f_idx]
-    chans = chans[f_idx]
-    radiofreqs = radiofreqs[f_idx]
-    bins = bins[f_idx]
-    widths = widths[f_idx]
-    periods = periods[f_idx]
-    snrs = snrs[f_idx]
-    print('Final no. of candidates after pruning = %d \n'% (len(periods)))
+    logger.info('Final no. of candidates across all input files = %d \n'% (len(periods)))
 
     # Open output csvfile.
     create_dir(hotpotato['OUTPUT_DIR'])
@@ -151,9 +146,12 @@ def set_defaults(hotpotato):
     hotpotato : dictionary
         Input dictionary with keys set to default values
     """
-    # Default S/N threshold = 7
-    if hotpotato['snr_cutoff']=='':
-        hotpotato['snr_cutoff'] = 7.0
+    # Default S/N threshold for ON pointings = 8
+    if hotpotato['on_cutoff']=='':
+        hotpotato['on_cutoff'] = 7.5
+    # Default S/N threshold for OFF pointings = 6
+    if hotpotato['off_cutoff']=='':
+        hotpotato['off_cutoff'] = 6.0
     # Default cluster radius = 1 ms
     if hotpotato['cluster_radius']=='':
         hotpotato['cluster_radius'] = 1.0e-3
