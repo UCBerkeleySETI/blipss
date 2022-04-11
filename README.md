@@ -65,10 +65,11 @@ Executes channel-wise FFA on input data files (filterbank or hdf5), identifies h
 
 Columns in the .csv file output by ``blipss.py`` include 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'. <br>
 
-The current implementation takes about 35 min. to run on a single mid-resolution filterbank product (1.07 s sampling, 2.86 kHz, 1703936 channels). For processing multiple input files in parallel, enable MPI via:
+The current implementation takes about 35 min. to run on a single mid-resolution filterbank product (1.07 s sampling, 2.86 kHz, 1703936 channels). For processing multiple input files in parallel, enable MPI via the following syntax.
 ```
-mpiexec -n <nproc> python -m mpi4py blipss.py -i <Configuration script of inputs> | tee <Log file>
+mpiexec -n <nproc> python -m mpi4py executables/blipss.py -i config/blipss.cfg | tee <Log file>
 ```
+The above syntax assumes a Python call from the repo base directory. Alter paths as required to supply executable and config scripts located in different directories.
 
 ---
 2. ``compare_cands.py``: <a name="comparecands"></a>
@@ -79,9 +80,9 @@ Note that the order of input .csv files passed to ``compare_cands.py`` matters. 
 The output from ``compare_cands.py`` is a single .csv file containing the following columns.<br>
 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', 'Code' <br>
 
-Execution syntax:
+Execution syntax from repo base folder:
 ```
-python compare_cands.py -i <Configuration script of inputs> | tee <Log file>
+python executables/compare_cands.py -i config/compare_cands.cfg | tee <Log file>
 ```
 
 ---
@@ -94,27 +95,27 @@ Here's a sample plot of a candidate with period 21.5105 s and code 001010. Each 
 
 Clearly, we see significant spikes at the expected candidate period in the periodograms on the 3rd and 5th rows. <br>
 
-Execution syntax:
+Execution syntax from repo base folder:
 ```
-python plot_cands.py -i <Configuration script of inputs> | tee <Log file>
+python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 ```
 
 ---
 4. ``inject_signal.py``: <a name="injectsignal"></a>
 Inject one or more channel-wide periodic signals into a real-world data set. Fake periodic signals are assumed to have a boxcar single pulse shape with uniform pulse amplitude distribution.<br>
 
-Execution syntax:
+Execution syntax from repo base folder:
 ```
-python inject_signal.py -i <Configuration script of inputs> | tee <Log file>
+python executables/inject_signal.py -i config/inject_signal.cfg | tee <Log file>
 ```
 
 ---
 5. ``simulate_data.py``: <a name="simulatedata"></a>
 Build an artificial data set with one or more channel-wide periodic signals superposed on normally distributed, white noise background. Again, the injected fake periodic signals have boxcar single pulse shapes and uniform pulse amplitude distributions.
 
-Execution syntax:
+Execution syntax from repo base folder:
 ```
-python simulate_data.py -i <Configuration script of inputs> | tee <Log file>
+python executables/simulate_data.py -i config/simulate_data.cfg | tee <Log file>
 ```
 
 ## Troubleshooting <a name="troubleshooting"></a>
