@@ -1,5 +1,5 @@
 # BLIPSS
-The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar tranmissions from potential intelligent alien civilizations residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
+The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar transmissions from potential intelligent alien civilizations residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
 
 BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://github.com/v-morello/riptide) to search for channel-wide periodic signals in radio dynamic spectra.
 
@@ -12,9 +12,9 @@ BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://gith
 - [Functionalities and Usage](#usage)
     - [blipss.py](#blipss_exec)
     - [compare_cands.py](#comparecands)
+    - [plot_cands.py](#plotcands)
     - [inject_signal.py](#injectsignal)
     - [simulate_data.py](#simulatedata)
-    - Final candidate plots (under development)
 - [Troubleshooting](#troubleshooting)
 
 ## Package Dependencies <a name="dependencies"></a>
@@ -57,7 +57,7 @@ python executables/inject_signal.py -i config/inject_signal.cfg
 Comments at the top of every executable file provide program execution syntax.
 
 ## Functionalities and Usage <a name="usage"></a>
-The BLIPSS package currently contains four chief exectutable files, which are:
+The BLIPSS package currently contains four chief executable files, which are:
 1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
@@ -85,18 +85,31 @@ python compare_cands.py -i <Configuration script of inputs> | tee <Log file>
 ```
 
 ---
+3. ``plot_cands.py``: <a name="plotcands"></a>
+Produce verification plots for a chosen subset of candidates. <br>
 
-3. ``inject_signal.py``: <a name="injectsignal"></a>
+Here's a sample plot of a candidate with period 21.5105 s and code 001010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
+
+![B04 candidate](https://github.com/akshaysuresh1/blipss/blob/main/images/B04on_B01off_ch304971_code001010_period21.5105.png?raw=True)
+
+Clearly, we see significant spikes at the expected candidate period in the periodograms on the 3rd and 5th rows. <br>
+
+Execution syntax:
+```
+python plot_cands.py -i <Configuration script of inputs> | tee <Log file>
+```
+
+---
+4. ``inject_signal.py``: <a name="injectsignal"></a>
 Inject one or more channel-wide periodic signals into a real-world data set. Fake periodic signals are assumed to have a boxcar single pulse shape with uniform pulse amplitude distribution.<br>
 
-Execution syntax :
+Execution syntax:
 ```
 python inject_signal.py -i <Configuration script of inputs> | tee <Log file>
 ```
 
 ---
-
-4. ``simulate_data.py``: <a name="simulatedata"></a>
+5. ``simulate_data.py``: <a name="simulatedata"></a>
 Build an artificial data set with one or more channel-wide periodic signals superposed on normally distributed, white noise background. Again, the injected fake periodic signals have boxcar single pulse shapes and uniform pulse amplitude distributions.
 
 Execution syntax:
