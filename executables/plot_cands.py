@@ -21,7 +21,7 @@ import pandas as pd
 ##############################################################
 def myexecute(inputs_cfg):
     """
-    Primary function that handles fake signal injection.
+    Primary function that handles script execution.
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ def myexecute(inputs_cfg):
         # Maximum S/N to be shown on periodogram plot
         snr_max = 1.25*np.max(max_snrs)
         # Produce candidate plot and save plot to disk.
-        plot_name = hotpotato['PLOT_DIR'] + '/' + hotpotato['basename'] + '_ch%d'% (chan) + '_code%s'% (code) +'_period%.4f'% (period)
+        plot_name = hotpotato['PLOT_DIR'] + '/' + hotpotato['basename'] + '_ch%d'% (chan) + '_code%s'% (code) +'_period%.5f'% (period)
         candverf_plot(period, bins, detrended_ts, periodograms, hotpotato['beam_labels'],
                       start_mjds, snr_max, hotpotato['periodaxis_log'], plot_name, hotpotato['plot_formats'])
 
@@ -124,8 +124,8 @@ def set_defaults(hotpotato):
     # Default annotation labels
     if hotpotato['beam_labels']=='' or hotpotato['beam_labels']==[]:
         hotpotato['beam_labels'] = ['']*len(hotpotato['datafile_list'])
-    # Default list of output plot formats = ['.png']
-    if hotpotato['plot_formats']=='':
+    # Default plot format = ['.png']
+    if hotpotato['plot_formats']=='' or hotpotato['plot_formats']==[]:
         hotpotato['plot_formats'] = ['.png']
     # Default output directory = DATA_DIR
     if hotpotato['PLOT_DIR']=='':

@@ -134,7 +134,7 @@ def set_defaults(hotpotato):
     # Start channel for FFA search
     if hotpotato['start_ch']=='':
         hotpotato['start_ch'] = 0
-    # Stop channel for FFA search:
+    # Stop channel for FFA search
     if hotpotato['stop_ch']=='':
         hotpotato['stop_ch'] = None
     # Default minimum period covered in FFA search = 10 s

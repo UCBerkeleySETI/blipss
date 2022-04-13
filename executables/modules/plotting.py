@@ -196,3 +196,65 @@ def candverf_plot(period, bins, detrended_ts, periodograms, annotations, start_m
         plt.savefig(plot_name+format)
     plt.close()
 ##########################################################################
+# Plot phase-resolved dynamic spectrum.
+def plot_phaseds(phaseresolved_ds, freqs_MHz, period, start_MJD, plot_name, plot_formats):
+    """
+    Outputs a grayscale imshow plot of a phase-resolved spectrum.
+
+    Parameters
+    ----------
+    phaseresolved_ds: 2D Numpy array
+        Data array of shape (Nchans, Nbins)
+
+    freqs_MHz: 1D Numpy array
+        Radio frequencies (MHz) corresponding to different channels
+
+    period: float
+        Folding period (s)
+
+    start_MJD: float
+        Start MJD (UTC) of observation
+
+    plot_name: string
+        Output plot basename, including output path
+
+    plot_formats: list
+        List of file formats for saving plot to disk
+    """
+    bins  = len(phaseresolved_ds[0]) # No. of phase bins
+    phasebin_centers = (0.5 + np.arange(0, bins))/bins # Central phase of different bins
+    # Set up figure
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,7), constrained_layout=True,
+                             gridspec_kw={'height_ratios':[1,3], 'width_ratios':[3,1]})
+    # Hide axes boundaries of top right plot.
+    axes[0,1].axis('off')
+    # Top left plot = Frequency-averaged profile
+    axes[0,0].plot(phasebin_centers, np.mean(phaseresolved_ds, axis=0), '-k')
+    axes[0,0].set_ylabel(r'$\overline{S}$ (arb. units)', fontsize=16)
+    axes[0,0].tick_params(axis='y', labelsize=14)
+    axes[0,0].set_xticklabels([])
+    axes[0,0].set_xlim(0.0, 1.0)
+    # Bottom left plot = Phase-resolved spectrum
+    axes[1,0].imshow(phaseresolved_ds, aspect='auto', origin='lower', interpolation='nearest', cmap='Greys',
+                     extent=[phasebin_centers[0], phasebin_centers[-1], freqs_MHz[0], freqs_MHz[-1]])
+    axes[1,0].set_xlabel('Phase relative to MJD %.4f UTC'% (start_MJD), fontsize=16)
+    axes[1,0].set_ylabel('Radio frequency (MHz)', fontsize=16)
+    axes[1,0].tick_params(axis='x', labelsize=14)
+    axes[1,0].tick_params(axis='y', labelsize=14)
+    axes[1,0].set_xlim((0.0, 1.0))
+    axes[1,0].set_ylim((freqs_MHz[0], freqs_MHz[-1]))
+    # Bottom right plot = Profile spectrum
+    axes[1,1].plot(np.mean(phaseresolved_ds,axis=1), freqs_MHz, '-k')
+    axes[1,1].set_xlabel(r'$\langle S_{\nu} \rangle$ (arb. units)', fontsize=16)
+    axes[1,1].set_yticklabels([])
+    axes[1,1].set_ylim((freqs_MHz[0], freqs_MHz[-1]))
+    axes[1,1].tick_params(axis='x', labelsize=14)
+    # Overall figure settings
+    fig.text(axes[0,1].get_position().x0+axes[0,1].margins()[0]+0.01, axes[0,1].get_position().y0+axes[0,1].margins()[1]+0.06,
+             '$P = %.5f$ s'% (period), fontsize=16)
+    fig.text(axes[0,1].get_position().x0+axes[0,1].margins()[0]+0.01, axes[0,1].get_position().y0+axes[0,1].margins()[1]+0.01,
+             '$N_{\mathrm{bins}} = %d$'% (bins), fontsize=16)
+    # Save plot to disk.
+    for format in plot_formats:
+        plt.savefig(plot_name+format)
+    plt.close()

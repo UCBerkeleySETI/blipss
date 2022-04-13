@@ -22,7 +22,7 @@ import pandas as pd
 ##############################################################
 def myexecute(inputs_cfg):
     """
-    Primary function that handles fake signal injection.
+    Primary function that handles script execution.
 
     Parameters
     ----------

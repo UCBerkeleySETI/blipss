@@ -13,6 +13,7 @@ BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://gith
     - [blipss.py](#blipss_exec)
     - [compare_cands.py](#comparecands)
     - [plot_cands.py](#plotcands)
+    - [phaseresolved_ds.py](#phaseds)
     - [inject_signal.py](#injectsignal)
     - [simulate_data.py](#simulatedata)
 - [Troubleshooting](#troubleshooting)
@@ -101,7 +102,18 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 ```
 
 ---
-4. ``inject_signal.py``: <a name="injectsignal"></a>
+4. ``phaseresolved_ds.py``: <a name="phaseds"></a>
+Compute and plot the phase-resolved spectrum for a given folding period.
+
+![B04 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/B04_58704_0014_period21.51049.png?raw=True)
+
+Execution syntax from repo base folder:
+```
+python executables/phaseresolved_ds.py -i config/phaseresolved_ds.cfg | tee <Log file>
+```
+
+---
+5. ``inject_signal.py``: <a name="injectsignal"></a>
 Inject one or more channel-wide periodic signals into a real-world data set. Fake periodic signals are assumed to have a boxcar single pulse shape with uniform pulse amplitude distribution.<br>
 
 Execution syntax from repo base folder:
@@ -110,7 +122,7 @@ python executables/inject_signal.py -i config/inject_signal.cfg | tee <Log file>
 ```
 
 ---
-5. ``simulate_data.py``: <a name="simulatedata"></a>
+6. ``simulate_data.py``: <a name="simulatedata"></a>
 Build an artificial data set with one or more channel-wide periodic signals superposed on normally distributed, white noise background. Again, the injected fake periodic signals have boxcar single pulse shapes and uniform pulse amplitude distributions.
 
 Execution syntax from repo base folder:
