@@ -65,7 +65,7 @@ def myexecute(inputs_cfg):
         # Only retain fundamental periods with associated S/N values exceeding user-specified threshold.
         print('Label = %s'% (hotpotato['labels'][i]))
         threshold = snr_cutoff[hotpotato['labels'][i].upper()]
-        print('S/N threshold applied = %.1f'% (threshold))
+        print('S/N threshold applied = %.2f'% (threshold))
         filtered_indices = np.where(np.logical_and(cand_snrs>=threshold, cand_flags=='F'))[0]
         cand_chans = cand_chans[filtered_indices]
         cand_radiofreqs = cand_radiofreqs[filtered_indices]
