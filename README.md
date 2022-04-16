@@ -92,7 +92,7 @@ Produce verification plots for a chosen subset of candidates. <br>
 
 Here's a sample plot of a candidate with period 21.5105 s and code 001010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
 
-![B04 candidate](https://github.com/akshaysuresh1/blipss/blob/main/images/B04on_B01off_ch304971_code001010_period21.5105.png?raw=True)
+![B04 candidate](https://github.com/akshaysuresh1/blipss/blob/main/images/sim_cand.png?raw=True)
 
 Clearly, we see significant spikes at the expected candidate period in the periodograms on the 3rd and 5th rows. <br>
 
@@ -105,7 +105,7 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 4. ``phaseresolved_ds.py``: <a name="phaseds"></a>
 Compute and plot the phase-resolved spectrum for a given folding period.
 
-![B04 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/B04_58704_0014_period21.51049.png?raw=True)
+![B04 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/guppi_58737_81548_PSR_B2021+51_0023_period0.52920.png?raw=True)
 
 Execution syntax from repo base folder:
 ```
