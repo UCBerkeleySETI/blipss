@@ -156,9 +156,12 @@ def candverf_plot(period, bins, detrended_ts, periodograms, annotations, start_m
             ax1.set_xscale('log')
             # Show x-axis labels in decimal form.
             ax1.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x,pos: ('${{:.{:1d}f}}$'.format(int(np.maximum(-np.log10(x),0)))).format(x)))
+            # Equal sized minor and major ticks along x-axis
+            ax1.tick_params(axis='x',which='major',length=7)
+            ax1.tick_params(axis='x',which='minor',length=7)
         # Set font size of axes labels.
-        ax1.tick_params(axis='x', labelsize=14)
-        ax1.tick_params(axis='y', labelsize=14)
+        ax1.tick_params(axis='x', which='major',length=7,labelsize=14)
+        ax1.tick_params(axis='y', which='major',length=7,labelsize=14)
 
         # Right column = Phase-time diagram and average profile
         phase_time = detrended_ts[j].fold(period, bins, subints=None) # Shape = (No. of full periods, No. of bins)
@@ -171,20 +174,22 @@ def candverf_plot(period, bins, detrended_ts, periodograms, annotations, start_m
         ax20 = plt.subplot(gs2[0])
         ax20.plot(phasebin_centers, profile, '-k')
         ax20.set_ylabel(r'$\overline{S}$ (a.u.)', fontsize=16)
-        ax20.tick_params(axis='y', labelsize=14)
+        ax20.tick_params(axis='y', length=7, labelsize=14)
+        ax20.tick_params(axis='x', length=0)
+        ax20.set_xlim((0., 1.))
         # Phase-time diagram
         ax21 = plt.subplot(gs2[1],sharex=ax20)
         ax21.imshow(phase_time, origin='lower', interpolation='nearest', aspect='auto',cmap='Greys',
                     extent=[phasebin_centers[0], phasebin_centers[-1], 0.0, len(phase_time)*period])
         ax21.set_ylabel(r'$t$ (s)', fontsize=16)
-        ax21.tick_params(axis='x', labelsize=14)
-        ax21.tick_params(axis='y', labelsize=14)
+        ax21.tick_params(axis='x', length=7, labelsize=14)
+        ax21.tick_params(axis='y', length=7, labelsize=14)
         ax21.set_xlim((0., 1.))
         # Hide xticks for all but the bottom row.
         if j!=(N_datafiles-1):
             ax1.set_xticks([])
-            ax20.set_xticks([])
-            ax21.set_xticks([])
+            ax20.set_xticklabels([])
+            ax21.tick_params(axis='x',length=7)
         else:
             ax1.set_xlabel('Trial period (s)', fontsize=16)
             ax20.xaxis.set_visible(False)
