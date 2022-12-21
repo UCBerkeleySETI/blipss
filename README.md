@@ -1,5 +1,5 @@
 # BLIPSS
-The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar transmissions from potential intelligent alien civilizations residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
+The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar transmissions from potential technologically advanced alien life forms residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
 
 BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://github.com/v-morello/riptide) to search for channel-wide periodic signals in radio dynamic spectra.
 
@@ -58,7 +58,7 @@ python executables/inject_signal.py -i config/inject_signal.cfg
 Comments at the top of every executable file provide program execution syntax.
 
 ## Functionalities and Usage <a name="usage"></a>
-The BLIPSS package currently contains four chief executable files, which are:
+The BLIPSS package currently contains six chief executable files, which are:
 1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
