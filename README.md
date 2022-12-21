@@ -105,7 +105,7 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 4. ``phaseresolved_ds.py``: <a name="phaseds"></a>
 Compute and plot the phase-resolved spectrum for a given folding period.
 
-![psrB0355 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/guppi_58737_81548_PSR_B2021+51_0023_period0.52920.png?raw=True)
+![psrB0355 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
 
 Execution syntax from repo base folder:
 ```
