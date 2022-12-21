@@ -187,7 +187,7 @@ def candverf_plot(period, bins, detrended_ts, periodograms, annotations, start_m
         ax21.set_xlim((0., 1.))
         # Hide xticks for all but the bottom row.
         if j!=(N_datafiles-1):
-            ax1.set_xticks([])
+            ax1.set_xticklabels([])
             ax20.set_xticklabels([])
             ax21.tick_params(axis='x',length=7)
         else:
