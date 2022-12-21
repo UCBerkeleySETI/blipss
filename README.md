@@ -90,11 +90,11 @@ python executables/compare_cands.py -i config/compare_cands.cfg | tee <Log file>
 3. ``plot_cands.py``: <a name="plotcands"></a>
 Produce verification plots for a chosen subset of candidates. <br>
 
-Here's a sample plot of a candidate with period 21.5105 s and code 001010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
+Here's a sample plot of a candidate with period 30 s and code 101010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
 
 ![B04 candidate](https://github.com/akshaysuresh1/blipss/blob/main/images/sim_cand.png?raw=True)
 
-Clearly, we see significant spikes at the expected candidate period in the periodograms on the 3rd and 5th rows. <br>
+Clearly, we see significant spikes at the expected candidate period in the periodograms on the first, third, and fifth rows. <br>
 
 Execution syntax from repo base folder:
 ```
@@ -104,6 +104,8 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 ---
 4. ``phaseresolved_ds.py``: <a name="phaseds"></a>
 Compute and plot the phase-resolved spectrum for a given folding period.
+
+Here's a sample output showing a phase-resolved spectrum of pulsar B0355+54.
 
 ![psrB0355 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
 
