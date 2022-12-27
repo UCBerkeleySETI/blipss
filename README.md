@@ -62,7 +62,7 @@ The BLIPSS package currently contains six chief executable files, which are:
 1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
-![BLIPSS workflow (Jan 27, 2022)](https://github.com/akshaysuresh1/blipss/blob/main/images/blipss_design_2022Jan27.png?raw=True)
+![BLIPSS workflow (Jan 27, 2022)](https://github.com/UCBerkeleySETI/blipss/blob/main/images/blipss_design_2022Jan27.png?raw=True)
 
 Columns in the .csv file output by ``blipss.py`` include 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'. <br>
 
@@ -92,7 +92,7 @@ Produce verification plots for a chosen subset of candidates. <br>
 
 Here's a sample plot of a candidate with period 30 s and code 101010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
 
-![B04 candidate](https://github.com/akshaysuresh1/blipss/blob/main/images/sim_cand.png?raw=True)
+![B04 candidate](https://github.com/UCBerkeleySETI/blipss/blob/main/images/sim_cand.png?raw=True)
 
 Clearly, we see significant spikes at the expected candidate period in the periodograms on the first, third, and fifth rows. <br>
 
@@ -107,7 +107,7 @@ Compute and plot the phase-resolved spectrum for a given folding period.
 
 Here's a sample output showing a phase-resolved spectrum of pulsar B0355+54.
 
-![psrB0355 spectrum](https://github.com/akshaysuresh1/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
+![psrB0355 spectrum](https://github.com/UCBerkeleySETI/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
 
 Execution syntax from repo base folder:
 ```
