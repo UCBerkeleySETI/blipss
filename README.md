@@ -1,5 +1,6 @@
 # BLIPSS
 [![AJ Paper](https://img.shields.io/badge/DOI-10.3847/1538--3881/acccf0-blue)](https://doi.org/10.3847/1538-3881/acccf0)
+[![arXiv](http://img.shields.io/badge/astro.ph-2305.18527-B31B1B.svg)](https://arxiv.org/abs/2305.18527) 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/UCBerkeleySETI/blipss/blob/main/LICENSE)
 
 The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar transmissions from potential technologically advanced alien life forms residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
@@ -9,7 +10,7 @@ BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://gith
 ## Citation
 
 If using ``blipss`` contributes to a scientific publication, please cite the article:  
-[Suresh et al., <i>"A 4&ndash;8 GHz Galactic Center Search for Periodic Technosignatures"</i>. 2023 AJ 165 255](https://doi.org/10.3847/1538-3881/acccf0).
+[Suresh et al., <i>"A 4&ndash;8 GHz Galactic Center Search for Periodic Technosignatures"</i>. 2023 AJ 165 255](https://ui.adsabs.harvard.edu/abs/2023arXiv230518527S/abstract).
 
 ---
 
