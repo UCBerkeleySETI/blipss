@@ -13,6 +13,17 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "astropy>=7.2.0",
+    "blimpy>=2.1.4",
+    "matplotlib>=3.10.6",
+    "mpi4py>=4.1.1",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "riptide-ffa>=0.2.5",
+    "scipy>=1.17.1",
+    "tqdm>=4.67.3",
+]
 
 [project.urls]
 Repository = "https://github.com/UCBerkeleySETI/blipss"
