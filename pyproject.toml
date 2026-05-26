@@ -14,32 +14,45 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "astropy>=7.2.0",
     "blimpy>=2.1.4",
     "matplotlib>=3.10.6",
-    "mpi4py>=4.1.1",
     "numpy>=2.4.4",
-    "pandas>=3.0.2",
+    "pydantic>=2.13.4",
+    "pyyaml>=6.0.3",
     "riptide-ffa>=0.2.5",
-    "scipy>=1.17.1",
     "tqdm>=4.67.3",
+    "typer>=0.25.1",
 ]
 
 [project.urls]
 Repository = "https://github.com/UCBerkeleySETI/blipss"
 
+[project.scripts]
+simulate-data = "blipss.cli.simulate_data:app"
+
 [dependency-groups]
 dev = [
-    "pytest>=7.2.0",
-    "pre-commit>=2.20.0",
-    "tox-uv>=1.11.3",
+    "astropy>=7.2.0",
     "deptry>=0.23.0",
-    "ty>=0.0.1a16",
-    "ruff>=0.11.5",
+    "hypothesis>=6.0.0",
     "mkdocs>=1.4.2",
     "mkdocs-material>=8.5.10",
     "mkdocstrings[python]>=0.26.1",
+    "mpi4py>=4.1.2",
+    "pandas>=3.0.3",
+    "pre-commit>=2.20.0",
+    "pytest>=7.2.0",
+    "ruff>=0.11.5",
+    "scipy>=1.17.1",
+    "setuptools>=68.0.0,<80.0.0",
+    "tox-uv>=1.11.3",
+    "ty>=0.0.1a16",
+    "types-pyyaml>=6.0.12.20260518",
+    "types-tqdm>=4.67.3.20260518",
 ]
+
+[tool.uv]
+default-groups = ["dev"]
 
 [build-system]
 requires = ["hatchling"]
@@ -54,6 +67,7 @@ python-version = "3.12"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = ["--cov", "--cov-report=term-missing"]
 
 [tool.ruff]
 target-version = "py312"

@@ -1,0 +1,26 @@
+"""Package-wide constants shared across blipss modules"""
+
+# Default floating-point tolerance for harmonic period matching
+DEFAULT_EPSILON_HARMONIC: float = 1.0e-3
+
+# Decimal places applied when rounding output period and S/N candidate arrays
+CANDIDATE_DECIMAL_PRECISION: int = 5
+
+# Plotting
+LABEL_FONTSIZE: int = 16
+TICK_LABELSIZE: int = 14
+TICK_LENGTH: int = 7
+SCATTER_MARKER_SIZE: int = 38
+
+# Sigproc header constants for simulated filterbank data products.
+# Reference: https://sigproc.sourceforge.net/sigproc.pdf
+# machine_id = 0: FAKE / unspecified backend (sigproc convention)
+# telescope_id = 0: FAKE / unspecified telescope (sigproc convention)
+# data_type = 1: filterbank (time-frequency) data (sigproc convention; 2 = time series)
+# nbits = 32: samples stored as 32-bit floats
+# nifs = 1: single polarisation / flux density feed
+SIGPROC_MACHINE_ID: int = 0
+SIGPROC_TELESCOPE_ID: int = 0
+SIGPROC_DATA_TYPE: int = 1
+SIGPROC_N_BITS: int = 32
+SIGPROC_N_IFS: int = 1
