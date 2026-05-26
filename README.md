@@ -210,8 +210,8 @@ Reads simulation parameters from a YAML config file. Key configuration sections:
 - `optional_header_parameters`: metadata fields (e.g., source name, start MJD) written into the filterbank header
 
 Execution syntax:
-```bash
-simulate-data --config config/simulate_data.yaml
+```
+simulate-data --config config/simulate_data.yaml 2>&1 | tee <Log file>
 ```
 
 ## Troubleshooting <a name="troubleshooting"></a>
