@@ -12,6 +12,7 @@ classifiers = [
     "Operating System :: Unix",
     "Operating System :: MacOS :: MacOS X",
     "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
 ]
 dependencies = [
     "blimpy>=2.1.4",
