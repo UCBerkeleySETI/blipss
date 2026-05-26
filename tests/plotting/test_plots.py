@@ -3,7 +3,6 @@
 from collections.abc import Generator
 from unittest.mock import MagicMock, patch
 
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
