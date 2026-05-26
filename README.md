@@ -15,8 +15,10 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
 ---
 
 ## Table of Contents
-- [Package dependencies](#dependencies)
 - [Installation](#installation)
+    - [Option 1: Using a uv environment](#a-using-uv-recommended)
+    - [Option 2: Using a conda environment](#b-using-a-conda-environment)
+    - [Add-on: Enabling LaTeX in Plots](#enabling-latex-in-plots)
 - [Repository Organization](#organization)
 - [Functionalities and Usage](#usage)
     - [blipss.py](#blipss_exec)
@@ -24,50 +26,115 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
     - [plot_cands.py](#plotcands)
     - [phaseresolved_ds.py](#phaseds)
     - [inject_signal.py](#injectsignal)
-    - [simulate_data.py](#simulatedata)
+    - [simulate_data.py](#simulate-data)
 - [Troubleshooting](#troubleshooting)
 
-## Package Dependencies <a name="dependencies"></a>
-```blipss``` is written in Python 3.8.5, and has the following package dependencies.
-- astropy >= 4.0
-- [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) >= 2.0.0
-- matplotlib >= 3.1.0
-- mpi4py >= 3.1.1
-- numpy >= 1.18.1
-- pandas >= 1.3.4
-- [`riptide-ffa`](https://github.com/v-morello/riptide) >= 0.2.4
-- scipy >= 1.6.0
-- tqdm >= 4.32.1
-
 ## Installation <a name="installation"></a>
-1. Clone this repository to your local machine. To do so, execute the following at the command line.
-```
+
+Choose one of the two installation methods below.
+
+### A. Using uv (Recommended)
+
+The installation steps below assume that you have [uv](https://docs.astral.sh/uv/getting-started/installation/) and [git](https://git-scm.com/downloads) installed on your local machine.
+
+1. Clone the repository to your local machine.
+```bash
 git clone git@github.com:UCBerkeleySETI/blipss.git
 ```
-2. Verify that your local Python 3 installation satisfies all dependencies of ```blipss```. If not, either manually install the missing dependencies or run the below calls.
-```
+
+2. Navigate into the repository and install the package.
+```bash
 cd blipss
-pip install pybind11
-python setup.py install
-python setup.py clean
+make install
 ```
-Note: `pybind11` is a prerequisite for installing [`riptide-ffa`](https://github.com/v-morello/riptide).
+
+3. Verify that the installation is complete by checking that all unit tests pass locally.
+```bash
+make test
+```
+
+4. Activate the created uv environment.
+```bash
+source .venv/bin/activate
+```
+Your uv environment is now ready for use.
+
+### B. Using a conda environment
+
+The installation steps below assume that you have [Anaconda](https://www.anaconda.com/download) and [git](https://git-scm.com/downloads) installed on your local machine.
+
+1. Create a conda environment with Python 3.12.
+```bash
+conda create -n blipss-env python=3.12
+```
+
+2. Activate the conda environment.
+```bash
+conda activate blipss-env
+```
+
+3. Install `pybind11`, a prerequisite for [`riptide-ffa`](https://github.com/v-morello/riptide).
+```bash
+pip install pybind11
+```
+
+3. Clone the repository to your local mchine.
+```bash
+git clone git@github.com:UCBerkeleySETI/blipss.git
+```
+
+4. Navigate into the repository and install the full package. Y
+```bash
+cd blipss
+pip install .
+```
+Your conda environment is now ready for use.
+
+### Enabling LaTeX in Plots
+
+BLIPSS plotting modules expose a boolean `use_latex` flag that, when set to `True`, renders axis labels and annotations using LaTeX. Enabling this flag requires that a LaTeX distribution be installed on your system.
+
+Install a LaTeX distribution appropriate for your operating system.
+- **macOS**: [MacTeX](https://www.tug.org/mactex/)
+- **Linux**: [TeX Live](https://www.tug.org/texlive/) via your package manager (e.g., `sudo apt install texlive-full`)
+- **Windows**: [MiKTeX](https://miktex.org/)
+
+Also, ensure `dvipng` and `ghostscript` are available, as matplotlib requires them for LaTeX rendering.
+```bash
+# macOS (Homebrew)
+brew install ghostscript
+
+# Debian/Ubuntu
+sudo apt install dvipng ghostscript
+```
+
+If you do not have a LaTeX distribution installed, leave `use_latex=False` (the defaul behavior). Matplotlib will use its built-in math renderer and plots will still be generated without error.
 
 ## Repository Organization <a name="organization"></a>
-The repository is organized as two major folders, which are: <br>
-1. `config`: A folder containing sample input configuration scripts for various use cases <br>
-2. `executables`: Primary executable files for different tasks. Unless absolutely required, avoid editing executable scripts to ensure smooth operation. <br> <br>
 
-For every functionality (say `inject_signal.py`), you will find relevant configuration scripts and executable files under the `config` and `executables` folders respectively. <br> <br>
+```
+blipss/                            # repository root
+├── blipss/                        # Python package
+│   ├── cli/                       # CLI entry points (installed as console scripts)
+│   ├── core/                      # FFA period-finding and harmonic detection algorithms
+│   ├── io/                        # Data I/O: filterbank/HDF5 reading, YAML config parsing, filterbank writing
+│   ├── models/                    # Pydantic data models
+│   ├── plotting/                  # Plotting utilities
+│   ├── utils/                     # General utilities
+│   └── constants.py
+├── config/                        # Sample YAML configuration files, one per CLI command
+├── tests/                         # Test suite mirroring the blipss/ package layout
+├── pyproject.toml
+└── README.md
+```
 
-To run an executable file, use the `-i` flag to supply its companion configuration script in the command line. For example, if you are running a command line terminal from the ``blipss`` repository, initiate an instance of ``inject_signal.py`` using:
+Each CLI command reads its parameters from a companion YAML file in `config/`. For example:
+```bash
+simulate-data --config config/simulate_data.yaml
 ```
-python executables/inject_signal.py -i config/inject_signal.cfg
-```
-Comments at the top of every executable file provide program execution syntax.
 
 ## Functionalities and Usage <a name="usage"></a>
-The BLIPSS package currently contains six chief executable files, which are:
+The BLIPSS package contains six executable scripts, which are:
 1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
@@ -133,15 +200,21 @@ python executables/inject_signal.py -i config/inject_signal.cfg | tee <Log file>
 ```
 
 ---
-6. ``simulate_data.py``: <a name="simulatedata"></a>
-Build an artificial data set with one or more channel-wide periodic signals superposed on normally distributed, white noise background. Again, the injected fake periodic signals have boxcar single pulse shapes and uniform pulse amplitude distributions.
+6. ``simulate-data`` <a name="simulate-data"></a>
+Build an artificial filterbank file with one or more channel-wide periodic signals superposed on a Gaussian white noise background. Injected signals have boxcar single-pulse shapes and a constant pulse amplitude.
 
-Execution syntax from repo base folder:
-```
-python executables/simulate_data.py -i config/simulate_data.cfg | tee <Log file>
+Reads simulation parameters from a YAML config file. Key configuration sections:
+- `output`: basename and output directory for the generated `.fil` file
+- `simulation_properties`: number of samples and channels, sampling time, channel bandwidth, first channel frequency, and random seed
+- `periodic_signal_injection`: lists of channels, periods (s), duty cycles, pulse S/N values, and initial phases for each injected signal
+- `optional_header_parameters`: metadata fields (e.g., source name, start MJD) written into the filterbank header
+
+Execution syntax:
+```bash
+simulate-data --config config/simulate_data.yaml
 ```
 
 ## Troubleshooting <a name="troubleshooting"></a>
 Please submit an issue to voice any problems or requests.
 
-Improvements to the code are always welcome.
+Improvements to the code are always welcome. Check out [CONTRIBUTING.md](https://github.com/UCBerkeleySETI/blipss/blob/main/CONTRIBUTING.md) for best practices on how to contribute to this repository.
