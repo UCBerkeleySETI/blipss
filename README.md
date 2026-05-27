@@ -25,8 +25,8 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
     - [compare_cands.py](#comparecands)
     - [plot_cands.py](#plotcands)
     - [phaseresolved_ds.py](#phaseds)
-    - [inject_signal.py](#injectsignal)
-    - [simulate_data.py](#simulate-data)
+    - [inject-signal](#inject-signal)
+    - [simulate-data](#simulate-data)
 - [Troubleshooting](#troubleshooting)
 
 ## Installation <a name="installation"></a>
@@ -191,12 +191,18 @@ python executables/phaseresolved_ds.py -i config/phaseresolved_ds.cfg | tee <Log
 ```
 
 ---
-5. ``inject_signal.py``: <a name="injectsignal"></a>
-Inject one or more channel-wide periodic signals into a real-world data set. Fake periodic signals are assumed to have a boxcar single pulse shape with uniform pulse amplitude distribution.<br>
+5. ``inject-signal`` <a name="inject-signal"></a>
+Inject one or more channel-wide periodic signals into a real-world filterbank data file. Each injected pulse train has a boxcar single-pulse shape and a constant amplitude calibrated to the local per-channel noise statistics.
 
-Execution syntax from repo base folder:
+Reads injection parameters from a YAML config file. Key configuration sections:
+- `input_data`: name of the filterbank file to load (`.fil` or `.h5`) and its parent directory
+- `output`: output basename, file extension (defaults to match the input format), and output directory (defaults to the input directory)
+- `periodic_signal_injection`: lists of channels, periods (s), duty cycles, pulse peak S/N values, and initial phases for each injected signal
+- `resource_limits`: maximum data volume (GB) allowed to be loaded into memory at once
+
+Execution syntax:
 ```
-python executables/inject_signal.py -i config/inject_signal.cfg | tee <Log file>
+inject-signal --config config/inject_signal.yaml 2>&1 | tee <Log file>
 ```
 
 ---

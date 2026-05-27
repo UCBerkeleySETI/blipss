@@ -29,6 +29,7 @@ dependencies = [
 Repository = "https://github.com/UCBerkeleySETI/blipss"
 
 [project.scripts]
+inject-signal = "blipss.cli.inject_signal:app"
 simulate-data = "blipss.cli.simulate_data:app"
 
 [dependency-groups]

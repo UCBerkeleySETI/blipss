@@ -8,7 +8,7 @@ import numpy as np
 import numpy.testing
 import pytest
 
-from blipss.cli.simulate_data import simulate
+from blipss.cli.simulate_data import run_simulate_data
 from blipss.models.simulate_data import (
     OptionalHeaderParameters,
     OutputConfig,
@@ -88,7 +88,7 @@ def test_simulate_noise_generation_uses_n_channels_and_n_samples(
 ) -> None:
     """simulate calls generate_white_noise_background with (n_channels, n_samples) from config."""
     cfg = _make_config(n_channels=8, n_samples=32)
-    simulate(cfg)
+    run_simulate_data(cfg)
     mock_gwn.assert_called_once_with(8, 32, rng=ANY)
     mock_inject.assert_not_called()
     mock_reshape.assert_called_once()
@@ -135,7 +135,7 @@ def test_simulate_inject_call_count_matches_channel_count(
         pulse_snr=pulse_snr,
         initial_phase=initial_phase,
     )
-    simulate(cfg)
+    run_simulate_data(cfg)
     assert mock_inject.call_count == len(inject_channels)
     mock_gwn.assert_called_once()
     mock_reshape.assert_called_once()
@@ -170,7 +170,7 @@ def test_simulate_inject_receives_noise_data_array(
         pulse_snr=[3.0],
         initial_phase=[0.0],
     )
-    simulate(cfg)
+    run_simulate_data(cfg)
     assert mock_inject.call_args.kwargs["data"] is sentinel_data
     mock_reshape.assert_called_once()
     mock_build_header.assert_called_once()
@@ -200,7 +200,7 @@ def test_simulate_inject_receives_correct_sample_times(
         pulse_snr=[3.0],
         initial_phase=[0.0],
     )
-    simulate(cfg)
+    run_simulate_data(cfg)
     actual_times = mock_inject.call_args.kwargs["sample_times"]
     expected_times = np.arange(n_samples) * t_samp
     numpy.testing.assert_array_equal(actual_times, expected_times)
@@ -230,7 +230,7 @@ def test_simulate_inject_passes_correct_per_signal_kwargs(
         pulse_snr=[6.0, 8.0],
         initial_phase=[0.0, 0.25],
     )
-    simulate(cfg)
+    run_simulate_data(cfg)
     calls = mock_inject.call_args_list
 
     kwargs0 = calls[0].kwargs
@@ -273,7 +273,7 @@ def test_simulate_pipes_noise_data_to_reshape(
     sentinel_data = np.zeros((4, 16))
     mock_gwn.return_value = sentinel_data
     cfg = _make_config()
-    simulate(cfg)
+    run_simulate_data(cfg)
     mock_reshape.assert_called_once_with(sentinel_data)
     mock_inject.assert_not_called()
     mock_build_header.assert_called_once()
@@ -299,7 +299,7 @@ def test_simulate_builds_header_with_sim_and_header_params(
 ) -> None:
     """simulate calls build_sigproc_header with simulation_properties and optional_header_parameters."""
     cfg = _make_config(source_name="Cygnus", tstart=59000.5)
-    simulate(cfg)
+    run_simulate_data(cfg)
     mock_build_header.assert_called_once_with(cfg.simulation_properties, cfg.optional_header_parameters)
     mock_gwn.assert_called_once()
     mock_inject.assert_not_called()
@@ -331,7 +331,7 @@ def test_simulate_writes_filterbank_with_reshaped_data_and_header(
     mock_reshape.return_value = sentinel_reshaped
     mock_build_header.return_value = sentinel_header
     cfg = _make_config(output_dir=tmp_path, basename="my_output")
-    simulate(cfg)
+    run_simulate_data(cfg)
     mock_write.assert_called_once_with(
         sentinel_reshaped,
         sentinel_header,

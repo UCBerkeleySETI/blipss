@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 app = typer.Typer()
 
 
-def simulate(cfg: SimulateDataConfig) -> None:
+def run_simulate_data(cfg: SimulateDataConfig) -> None:
     """Orchestrate noise generation, signal injection, and filterbank file writing."""
     sim = cfg.simulation_properties
     signal_injection = cfg.periodic_signal_injection
@@ -83,7 +83,7 @@ def main(config: Annotated[Path, typer.Option("--config", help="Path to YAML con
     logger.info("Config validation completed.")
 
     logger.info("Initiating simulation of artificial dataset")
-    simulate(validated_config)
+    run_simulate_data(validated_config)
     logger.info("Dataset simulation completed.")
 
     elapsed_minutes = (time.time() - t_start) / 60.0

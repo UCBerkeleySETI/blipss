@@ -12,6 +12,9 @@ TICK_LABELSIZE: int = 14
 TICK_LENGTH: int = 7
 SCATTER_MARKER_SIZE: int = 38
 
+# Supported filterbank file extensions for reading and writing.
+FILTERBANK_EXTENSIONS: frozenset[str] = frozenset({".fil", ".h5"})
+
 # Sigproc header constants for simulated filterbank data products.
 # Reference: https://sigproc.sourceforge.net/sigproc.pdf
 # machine_id = 0: FAKE / unspecified backend (sigproc convention)

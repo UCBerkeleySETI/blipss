@@ -15,7 +15,7 @@ from blipss.constants import (
     SIGPROC_N_IFS,
     SIGPROC_TELESCOPE_ID,
 )
-from blipss.io.write_filterbank import _HeaderCarrier, build_sigproc_header, write_filterbank
+from blipss.io.write_filterbank import _HeaderCarrier, build_sigproc_header, write_filterbank, write_waterfall
 from blipss.models.simulate_data import OptionalHeaderParameters, SimulationProperties
 
 # ---------------------------------------------------------------------------
@@ -183,3 +183,33 @@ def test_write_filterbank_casts_data_to_float32(
     bytes_f64: bytes = (tmp_path / "obs_f64.fil").read_bytes()
     bytes_f32: bytes = (tmp_path / "obs_f32.fil").read_bytes()
     assert bytes_f64 == bytes_f32
+
+
+# ---------------------------------------------------------------------------
+# write_waterfall
+# ---------------------------------------------------------------------------
+
+
+def test_write_waterfall_fil_calls_write_to_fil() -> None:
+    """write_waterfall calls wat.write_to_fil with the string output path for .fil files."""
+    wat = MagicMock()
+    output_path = Path("/some/output.fil")
+    write_waterfall(wat, output_path)
+    wat.write_to_fil.assert_called_once_with(str(output_path))
+    wat.write_to_hdf5.assert_not_called()
+
+
+def test_write_waterfall_h5_calls_write_to_hdf5() -> None:
+    """write_waterfall calls wat.write_to_hdf5 with the string output path for .h5 files."""
+    wat = MagicMock()
+    output_path = Path("/some/output.h5")
+    write_waterfall(wat, output_path)
+    wat.write_to_hdf5.assert_called_once_with(str(output_path))
+    wat.write_to_fil.assert_not_called()
+
+
+def test_write_waterfall_unsupported_extension_raises_value_error() -> None:
+    """write_waterfall raises ValueError for an extension not in FILTERBANK_EXTENSIONS."""
+    wat = MagicMock()
+    with pytest.raises(ValueError, match="Unsupported output extension"):
+        write_waterfall(wat, Path("/some/output.fits"))
