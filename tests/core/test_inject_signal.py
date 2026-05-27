@@ -93,12 +93,10 @@ def test_compute_median_bandpass_shape() -> None:
 
 def test_compute_median_bandpass_known_values() -> None:
     """compute_median_bandpass returns the per-channel median across time samples."""
-    data = np.array(
-        [
-            [1.0, 3.0, 5.0],  # channel 0: median = 3.0
-            [2.0, 2.0, 2.0],  # channel 1: median = 2.0
-        ]
-    )
+    data = np.array([
+        [1.0, 3.0, 5.0],  # channel 0: median = 3.0
+        [2.0, 2.0, 2.0],  # channel 1: median = 2.0
+    ])
     result = compute_median_bandpass(data)
     np.testing.assert_allclose(result, [3.0, 2.0])
 
