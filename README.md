@@ -78,7 +78,7 @@ conda activate blipss-env
 pip install pybind11
 ```
 
-4. Clone the repository to your local mchine.
+4. Clone the repository to your local machine.
 ```bash
 git clone git@github.com:UCBerkeleySETI/blipss.git
 ```
@@ -108,7 +108,7 @@ brew install ghostscript
 sudo apt install dvipng ghostscript
 ```
 
-If you do not have a LaTeX distribution installed, leave `use_latex=False` (the defaul behavior). Matplotlib will use its built-in math renderer and plots will still be generated without error.
+If you do not have a LaTeX distribution installed, leave `use_latex=False` (the default behavior). Matplotlib will use its built-in math renderer and plots will still be generated without error.
 
 ## Repository Organization <a name="organization"></a>
 
