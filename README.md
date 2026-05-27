@@ -78,12 +78,12 @@ conda activate blipss-env
 pip install pybind11
 ```
 
-3. Clone the repository to your local mchine.
+4. Clone the repository to your local mchine.
 ```bash
 git clone git@github.com:UCBerkeleySETI/blipss.git
 ```
 
-4. Navigate into the repository and install the full package. Y
+5. Navigate into the repository and install the full package.
 ```bash
 cd blipss
 pip install .
