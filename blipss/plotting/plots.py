@@ -476,7 +476,7 @@ def candverf_plot(
 
 
 # ---------------------------------------------------------------------------
-# plot_phaseds helpers
+# plot_phase_resolved_dynamic_spectrum helpers
 # ---------------------------------------------------------------------------
 
 
@@ -574,7 +574,7 @@ def _annotate_period_bins(
     fig.text(x0, y0 + 0.01, f"$N_{{\\mathrm{{bins}}}} = {bins:d}$", fontsize=LABEL_FONTSIZE)
 
 
-def plot_phaseds(
+def plot_phase_resolved_dynamic_spectrum(
     phaseresolved_ds: npt.NDArray[np.floating],
     freqs_MHz: npt.NDArray[np.floating],
     period: float,

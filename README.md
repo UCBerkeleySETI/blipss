@@ -24,7 +24,7 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
     - [blipss.py](#blipss_exec)
     - [compare_cands.py](#comparecands)
     - [plot_cands.py](#plotcands)
-    - [phaseresolved_ds.py](#phaseds)
+    - [compute-phase-resolved-ds](#compute-phase-resolved-ds)
     - [inject-signal](#inject-signal)
     - [simulate-data](#simulate-data)
 - [Troubleshooting](#troubleshooting)
@@ -178,16 +178,23 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 ```
 
 ---
-4. ``phaseresolved_ds.py``: <a name="phaseds"></a>
-Compute and plot the phase-resolved spectrum for a given folding period.
+4. ``compute-phase-resolved-ds`` <a name="compute-phase-resolved-ds"></a>
+Fold each spectral channel of a filterbank file at a given period and produce a grayscale phase-resolved dynamic spectrum plot.
 
 Here's a sample output showing a phase-resolved spectrum of pulsar B0355+54.
 
 ![psrB0355 spectrum](https://github.com/UCBerkeleySETI/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
 
-Execution syntax from repo base folder:
+Reads folding parameters from a YAML config file. Key configuration sections:
+- `input_data`: name of the filterbank file to load (`.fil` or `.h5`) and its parent directory
+- `output`: output plot basename, list of plot formats (defaults to `['.png']`), output directory (defaults to `data_dir`), and `use_latex` flag
+- `channel_selection`: `start_ch` and `stop_ch` index bounds for restricting the channel range (both optional)
+- `phase_folding_parameters`: folding `period` (s), number of phase `bins`, optional running-median detrending (`do_deredden`, `rmed_width`)
+- `resource_limits`: maximum data volume (GB) to load into memory and number of parallel worker processes for folding
+
+Execution syntax:
 ```
-python executables/phaseresolved_ds.py -i config/phaseresolved_ds.cfg | tee <Log file>
+compute-phase-resolved-ds --config config/compute_phase_resolved_ds.yaml 2>&1 | tee <Log file>
 ```
 
 ---

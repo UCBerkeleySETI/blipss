@@ -30,7 +30,7 @@ from blipss.plotting.plots import (
     _save_and_close,
     _scatter_candidate_group,
     candverf_plot,
-    plot_phaseds,
+    plot_phase_resolved_dynamic_spectrum,
     scatterplot_period_radiofreq,
 )
 
@@ -645,38 +645,46 @@ def test_candverf_plot_calls_save_and_close_with_correct_args(
 
 
 # ---------------------------------------------------------------------------
-# plot_phaseds
+# plot_phase_resolved_dynamic_spectrum
 # ---------------------------------------------------------------------------
 
 
 @patch("blipss.plotting.plots._save_and_close")
 @patch("blipss.plotting.plots._require_latex")
-def test_plot_phaseds_calls_require_latex_when_use_latex_true(mock_require: MagicMock, mock_save: MagicMock) -> None:
-    """plot_phaseds calls _require_latex when use_latex is True."""
+def test_plot_phase_resolved_dynamic_spectrum_calls_require_latex_when_use_latex_true(
+    mock_require: MagicMock, mock_save: MagicMock
+) -> None:
+    """plot_phase_resolved_dynamic_spectrum calls _require_latex when use_latex is True."""
     ds = np.random.default_rng(0).uniform(0, 1, (8, 16))
     freqs = np.linspace(1200.0, 1500.0, 8)
-    plot_phaseds(ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png"], use_latex=True)
+    plot_phase_resolved_dynamic_spectrum(
+        ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png"], use_latex=True
+    )
     mock_require.assert_called_once()
     mock_save.assert_called_once_with("out/ds", [".png"])
 
 
 @patch("blipss.plotting.plots._save_and_close")
 @patch("blipss.plotting.plots._require_latex")
-def test_plot_phaseds_does_not_call_require_latex_when_use_latex_false(
+def test_plot_phase_resolved_dynamic_spectrum_does_not_call_require_latex_when_use_latex_false(
     mock_require: MagicMock, mock_save: MagicMock
 ) -> None:
-    """plot_phaseds skips _require_latex when use_latex is False."""
+    """plot_phase_resolved_dynamic_spectrum skips _require_latex when use_latex is False."""
     ds = np.random.default_rng(0).uniform(0, 1, (8, 16))
     freqs = np.linspace(1200.0, 1500.0, 8)
-    plot_phaseds(ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png"], use_latex=False)
+    plot_phase_resolved_dynamic_spectrum(
+        ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png"], use_latex=False
+    )
     mock_require.assert_not_called()
     mock_save.assert_called_once_with("out/ds", [".png"])
 
 
 @patch("blipss.plotting.plots._save_and_close")
-def test_plot_phaseds_calls_save_and_close_with_correct_args(mock_save: MagicMock) -> None:
-    """plot_phaseds passes plot_name and plot_formats to _save_and_close."""
+def test_plot_phase_resolved_dynamic_spectrum_calls_save_and_close_with_correct_args(mock_save: MagicMock) -> None:
+    """plot_phase_resolved_dynamic_spectrum passes plot_name and plot_formats to _save_and_close."""
     ds = np.random.default_rng(0).uniform(0, 1, (8, 16))
     freqs = np.linspace(1200.0, 1500.0, 8)
-    plot_phaseds(ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png", ".pdf"])
+    plot_phase_resolved_dynamic_spectrum(
+        ds, freqs, period=1.0, start_mjd=59000.0, plot_name="out/ds", plot_formats=[".png", ".pdf"]
+    )
     mock_save.assert_called_once_with("out/ds", [".png", ".pdf"])

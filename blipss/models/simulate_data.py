@@ -1,4 +1,4 @@
-"""Pydantic models for validating input configs read from config/simulate_data.yaml."""
+"""Pydantic models for validating input configs read from config/simulate_data.yaml"""
 
 from pathlib import Path
 

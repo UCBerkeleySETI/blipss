@@ -1,0 +1,25 @@
+# Produce a plot of a phase-resolved spectrum for a given folding period.
+
+input_data:
+  datafile: guppi_58702_22205_PSR_B0355+54_0041.gpuspec.8.0001.fil  # Name of Blimpy-readable data file
+  data_dir: /Users/akshay/SETI/Data  # Path to above data file
+
+output:
+  basename: guppi_58702_22205_PSR_B0355+54_0041  # Basename of output plot
+  plot_formats: null  # List of output plot formats (d: ['.png'])
+  plot_dir: /Users/akshay/SETI/Phase_resolved_dynamic_spectrum  # Output path (d: data_dir)
+  use_latex: true  # Render plot text with LaTeX; requires a system LaTeX installation as prerequisite (d: false)
+
+channel_selection:
+  start_ch: 2255  # All channels with indices less than this integer value will be ignored. (d: 0)
+  stop_ch: 11594  # All channels with indices larger than or equal to this integer value will be ignored. (d: len(data))
+
+phase_folding_parameters:
+  period: 0.15637  # Folding period (s) (d: 1.0)
+  bins: 128  # No. of bins desired across folded profile (d: 10)
+  do_deredden: true  # Do you want to deredden the time series before searching? (True/False) (d: False)
+  rmed_width: 1.0  # Width (s) of running median filter used for dereddening. (d: 12.0)
+
+resource_limits:
+  mem_load: 15.0  # Max data volume (GB) allowed to be read into memory (d: 1)
+  n_workers: null  # No. of parallel worker processes for folding (d: all available CPU cores)

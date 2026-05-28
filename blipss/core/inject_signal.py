@@ -4,17 +4,13 @@ Atomic data-manipulation routines for the real-data signal-injection pipeline.
 These functions operate on the internal ``(n_channels, n_samples)`` array
 representation used throughout the inject_signal pipeline:
 
-1. ``extract_data_array`` — load a ``Waterfall`` object into the internal layout.
-2. ``compute_median_bandpass`` / ``compute_per_channel_std`` — characterise the
+1. ``extract_data_array`: Load a ``Waterfall`` object into the internal layout.
+2. ``compute_median_bandpass`` / ``compute_per_channel_std``: Characterise the
    per-channel noise statistics of the real data; used to calibrate injected
    pulse amplitudes relative to the local bandpass.
-3. ``pack_data_into_waterfall`` — convert the modified array back to the sigproc
+3. ``pack_data_into_waterfall``: Convert the modified array back to the sigproc
    ``(n_samples, n_ifs, n_channels)`` layout and store it in the ``Waterfall``
    object prior to writing.
-
-The actual disk write is handled by ``blipss.io.write_filterbank.write_waterfall``.
-Signal injection itself is handled by ``blipss.core.simulate_data.inject_periodic_signal``,
-which is shared with the *simulate_data* pipeline.
 """
 
 import numpy as np

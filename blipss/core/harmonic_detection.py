@@ -11,7 +11,7 @@ Given a fundamental period p0:
 
 Algorithm
 ---------
-:func:`label_harmonics` uses a greedy approach: the unlabeled period with the
+`label_harmonics` uses a greedy approach: the unlabeled period with the
 highest S/N is selected as a fundamental ('F'), all of its harmonics ('H') and
 sub-harmonics ('S') present in the input are labeled and removed from
 consideration, then the process repeats on the remaining periods until every

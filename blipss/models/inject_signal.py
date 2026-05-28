@@ -1,4 +1,4 @@
-"""Pydantic models for validating input configs read from config/inject_signal.yaml."""
+"""Pydantic models for validating input configs read from config/inject_signal.yaml"""
 
 from pathlib import Path
 
