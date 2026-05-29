@@ -470,11 +470,12 @@ def test_plot_band_averaged_spectrum_plots_phase_bin_mean() -> None:
 
 
 def test_annotate_period_bins_adds_two_text_elements() -> None:
-    """_annotate_period_bins places exactly two fig.text annotations on the blank panel."""
-    fig, axes = plt.subplots(2, 2)
-    initial_count = len(fig.texts)
-    _annotate_period_bins(fig, axes[0, 1], period=1.23456, bins=16)
-    assert len(fig.texts) == initial_count + 2
+    """_annotate_period_bins places exactly two text artists on the blank panel axes."""
+    _, axes = plt.subplots(2, 2)
+    ax = axes[0, 1]
+    initial_count = len(ax.texts)
+    _annotate_period_bins(ax, period=1.23456, bins=16)
+    assert len(ax.texts) == initial_count + 2
 
 
 # ---------------------------------------------------------------------------

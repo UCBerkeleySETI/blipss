@@ -13,7 +13,6 @@ import matplotlib.ticker as ticker
 import numpy as np
 import numpy.typing as npt
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
 
 from ..constants import LABEL_FONTSIZE, SCATTER_MARKER_SIZE, TICK_LABELSIZE, TICK_LENGTH
 
@@ -554,7 +553,6 @@ def _plot_band_averaged_spectrum(
 
 
 def _annotate_period_bins(
-    fig: Figure,
     ref_ax: Axes,
     period: float,
     bins: int,
@@ -563,15 +561,12 @@ def _annotate_period_bins(
     Add folding period and phase-bin-count annotations to the blank top-right panel.
 
     Args:
-        fig: Parent figure on which to place the text
-        ref_ax: The blank top-right axes whose position anchors the text placement
+        ref_ax: The blank top-right axes on which to place the text
         period: Folding period (s)
         bins: Number of phase bins
     """
-    x0 = ref_ax.get_position().x0 + 0.01
-    y0 = ref_ax.get_position().y0
-    fig.text(x0, y0 + 0.06, f"$P = {period:.5f}$ s", fontsize=LABEL_FONTSIZE)
-    fig.text(x0, y0 + 0.01, f"$N_{{\\mathrm{{bins}}}} = {bins:d}$", fontsize=LABEL_FONTSIZE)
+    ref_ax.text(0.05, 0.65, f"$P = {period:.5f}$ s", fontsize=LABEL_FONTSIZE, transform=ref_ax.transAxes)
+    ref_ax.text(0.05, 0.35, f"$N_{{\\mathrm{{bins}}}} = {bins:d}$", fontsize=LABEL_FONTSIZE, transform=ref_ax.transAxes)
 
 
 def plot_phase_resolved_dynamic_spectrum(
@@ -616,5 +611,5 @@ def plot_phase_resolved_dynamic_spectrum(
         _plot_freq_averaged_profile(axes[0, 0], phasebin_centers, phaseresolved_ds)
         _plot_phase_resolved_spectrum(axes[1, 0], phaseresolved_ds, phasebin_centers, freqs_MHz, start_mjd)
         _plot_band_averaged_spectrum(axes[1, 1], phaseresolved_ds, freqs_MHz)
-        _annotate_period_bins(fig, axes[0, 1], period, bins)
+        _annotate_period_bins(axes[0, 1], period, bins)
         _save_and_close(plot_name, plot_formats)
