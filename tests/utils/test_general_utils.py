@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from blipss.utils.general_utils import ensure_path_exists
+from blipss.utils.general_utils import check_file_exists, ensure_path_exists
 
 
 def test_ensure_path_exists_creates_new_directory(tmp_path: Path) -> None:
@@ -55,3 +55,22 @@ def test_ensure_path_exists_file_branch_leaves_file_intact(tmp_path: Path) -> No
     file_path.write_text("hello")
     ensure_path_exists(file_path)
     assert file_path.read_text() == "hello"
+
+
+def test_check_file_exists_true_for_existing_file(tmp_path: Path) -> None:
+    """check_file_exists returns True for a path pointing at an existing regular file."""
+    file_path: Path = tmp_path / "data.fil"
+    file_path.write_text("content")
+    assert check_file_exists(file_path) is True
+
+
+def test_check_file_exists_false_for_missing_path(tmp_path: Path) -> None:
+    """check_file_exists returns False for a path that does not exist."""
+    assert check_file_exists(tmp_path / "absent.fil") is False
+
+
+def test_check_file_exists_false_for_directory(tmp_path: Path) -> None:
+    """check_file_exists returns False for an existing directory, which is not a regular file."""
+    dir_path: Path = tmp_path / "subdir"
+    dir_path.mkdir()
+    assert check_file_exists(dir_path) is False

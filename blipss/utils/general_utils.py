@@ -20,3 +20,16 @@ def ensure_path_exists(path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         return
     path.mkdir(parents=True, exist_ok=True)
+
+
+def check_file_exists(filepath: Path) -> bool:
+    """
+    Return True if the given path points to an existing file, False otherwise.
+
+    Args:
+        filepath: Filesystem path to check
+
+    Returns:
+        True if ``filepath`` exists and is a regular file, False otherwise
+    """
+    return filepath.is_file()

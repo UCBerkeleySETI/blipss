@@ -378,7 +378,7 @@ def test_search_all_channels_no_detections_returns_empty_arrays(mock_search: Mag
     mock_search.return_value = None
     data = np.zeros((3, 100))
     channels, periods, snrs, phase_bins, bw, flags = search_all_channels(
-        data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01
+        data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=1
     )
     assert mock_search.call_count == 3
     mock_tqdm.assert_called_once()
@@ -398,7 +398,7 @@ def test_search_all_channels_merges_candidates_from_every_channel(mock_search: M
     mock_search.return_value = (p, s, pb, bw, flags)
     data = np.zeros((3, 100))
     channels, periods, _, _, _, out_flags = search_all_channels(
-        data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01
+        data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=1
     )
     # 3 channels x 1 candidate each
     assert mock_search.call_count == 3
@@ -415,7 +415,9 @@ def test_search_all_channels_applies_start_channel_offset(mock_search: MagicMock
     p = np.array([1.0])
     mock_search.return_value = (p, np.array([8.0]), np.array([10]), np.array([2]), np.array(["F"]))
     data = np.zeros((2, 100))
-    channels, *_ = search_all_channels(data, 10, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01)
+    channels, *_ = search_all_channels(
+        data, 10, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=1
+    )
     assert mock_search.call_count == 2
     mock_tqdm.assert_called_once()
     np.testing.assert_array_equal(np.sort(channels), [10, 11])
@@ -429,8 +431,67 @@ def test_search_all_channels_skips_channels_with_no_candidates(mock_search: Magi
     hit = (p, np.array([8.0]), np.array([10]), np.array([2]), np.array(["F"]))
     mock_search.side_effect = [None, hit, None]
     data = np.zeros((3, 100))
-    channels, *_ = search_all_channels(data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01)
+    channels, *_ = search_all_channels(
+        data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=1
+    )
     assert mock_search.call_count == 3
     mock_tqdm.assert_called_once()
     assert len(channels) == 1
     assert channels[0] == 1
+
+
+@patch("blipss.core.period_finding.process_map")
+def test_search_all_channels_parallel_branch_merges_results_with_channel_offset(mock_process_map: MagicMock) -> None:
+    """search_all_channels dispatches via process_map when n_workers != 1 and merges its results in channel order."""
+    hit = (np.array([1.0]), np.array([8.0]), np.array([10]), np.array([2]), np.array(["F"]))
+    mock_process_map.return_value = [None, hit, hit]
+    data = np.zeros((3, 100))
+    channels, periods, *_ = search_all_channels(
+        data, 10, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=2
+    )
+    mock_process_map.assert_called_once()
+    assert mock_process_map.call_args.kwargs["max_workers"] == 2
+    assert mock_process_map.call_args.kwargs["total"] == 3
+    np.testing.assert_array_equal(channels, [11, 12])
+    assert len(periods) == 2
+
+
+@pytest.mark.parametrize(
+    ("n_channels", "n_workers", "cpu_count", "expected_chunksize"),
+    [
+        (80, 2, 4, 10),
+        (3, 2, 4, 1),
+        (64, None, 4, 4),
+        (64, None, None, 16),
+    ],
+    ids=["explicit_workers", "fewer_channels_than_workers", "cpu_count_used", "cpu_count_unknown"],
+)
+@patch("blipss.core.period_finding.os.cpu_count")
+@patch("blipss.core.period_finding.process_map")
+def test_search_all_channels_chunksize_scales_with_worker_count(
+    mock_process_map: MagicMock,
+    mock_cpu_count: MagicMock,
+    n_channels: int,
+    n_workers: int | None,
+    cpu_count: int | None,
+    expected_chunksize: int,
+) -> None:
+    """search_all_channels batches channels into chunks sized by the explicit or detected worker count."""
+    mock_process_map.return_value = [None] * n_channels
+    mock_cpu_count.return_value = cpu_count
+    data = np.zeros((n_channels, 10))
+    search_all_channels(data, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=n_workers)
+    assert mock_process_map.call_args.kwargs["chunksize"] == expected_chunksize
+    assert mock_process_map.call_args.kwargs["max_workers"] == n_workers
+
+
+@patch("blipss.core.period_finding.process_map")
+def test_search_all_channels_passes_contiguous_array_to_workers(mock_process_map: MagicMock) -> None:
+    """search_all_channels converts a negatively-strided input view to a C-contiguous array before dispatch."""
+    flipped = np.flip(np.arange(12, dtype=float).reshape(3, 4), axis=0)
+    assert not flipped.flags["C_CONTIGUOUS"]
+    mock_process_map.return_value = [None] * 3
+    search_all_channels(flipped, 0, 0.001, 0.1, 10.0, 5, 32, 128, 0.5, False, 1.0, 7.0, 0.1, 0.01, n_workers=2)
+    dispatched: npt.NDArray[np.floating] = mock_process_map.call_args.args[1]
+    assert dispatched.flags["C_CONTIGUOUS"]
+    np.testing.assert_array_equal(dispatched, flipped)

@@ -16,11 +16,15 @@ Results from all channels are merged and returned by `search_all_channels`.
 
 """
 
+import os
+from functools import partial
+
 import numpy as np
 import numpy.typing as npt
 from riptide import Periodogram, TimeSeries, ffa_search
 from riptide.clustering import cluster1d
 from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map
 
 from ..constants import CANDIDATE_DECIMAL_PRECISION
 from .harmonic_detection import label_harmonics
@@ -306,6 +310,7 @@ def search_all_channels(
     snr_threshold: float,
     epsilon_fof: float,
     epsilon_harmonic: float,
+    n_workers: int | None = None,
 ) -> tuple[
     npt.NDArray[np.intp],
     npt.NDArray[np.floating],
@@ -337,6 +342,9 @@ def search_all_channels(
         snr_threshold: Minimum matched-filtering S/N for a detection
         epsilon_fof: Period tolerance for Friends-of-Friends clustering
         epsilon_harmonic: Period tolerance for harmonic matching
+        n_workers: Number of parallel worker processes; 1 runs the serial tqdm loop,
+            None or values >1 dispatch via process_map using all available CPUs (None)
+            or the specified count
 
     Returns:
         Tuple of (cand_channels, cand_periods, cand_snrs, cand_phase_bins,
@@ -353,6 +361,10 @@ def search_all_channels(
         - cand_flags: Harmonic classification for each candidate ('F': fundamental,
           'H': harmonic, 'S': sub-harmonic)
     """
+    # np.flip returns negatively-strided views; contiguous layout avoids a per-worker copy on each row access.
+    data = np.ascontiguousarray(data)
+    n_channels = len(data)
+
     cand_channels: list[int] = []
     cand_periods: list[float] = []
     cand_snrs: list[float] = []
@@ -360,32 +372,63 @@ def search_all_channels(
     cand_boxcar_widths: list[int] = []
     cand_flags: list[str] = []
 
-    for ch_idx in tqdm(range(len(data))):
-        result = _search_single_channel(
-            data[ch_idx],
-            sampling_time_in_seconds,
-            minimum_period_in_seconds,
-            maximum_period_in_seconds,
-            minimum_fold_periods,
-            minimum_bins,
-            maximum_bins,
-            max_duty_cycle,
-            do_deredden,
-            running_median_width_in_seconds,
-            snr_threshold,
-            epsilon_fof,
-            epsilon_harmonic,
+    if n_workers == 1:
+        for ch_idx in tqdm(range(n_channels)):
+            result = _search_single_channel(
+                data[ch_idx],
+                sampling_time_in_seconds,
+                minimum_period_in_seconds,
+                maximum_period_in_seconds,
+                minimum_fold_periods,
+                minimum_bins,
+                maximum_bins,
+                max_duty_cycle,
+                do_deredden,
+                running_median_width_in_seconds,
+                snr_threshold,
+                epsilon_fof,
+                epsilon_harmonic,
+            )
+            if result is None:
+                continue
+            periods, snrs, phase_bins, boxcar_widths, flags = result
+            n = len(periods)
+            cand_channels.extend([start_channel + ch_idx] * n)
+            cand_periods.extend(periods.tolist())
+            cand_snrs.extend(snrs.tolist())
+            cand_phase_bins.extend(phase_bins.tolist())
+            cand_boxcar_widths.extend(boxcar_widths.tolist())
+            cand_flags.extend(flags.tolist())
+    else:
+        search_fn = partial(
+            _search_single_channel,
+            sampling_time_in_seconds=sampling_time_in_seconds,
+            minimum_period_in_seconds=minimum_period_in_seconds,
+            maximum_period_in_seconds=maximum_period_in_seconds,
+            minimum_fold_periods=minimum_fold_periods,
+            minimum_bins=minimum_bins,
+            maximum_bins=maximum_bins,
+            max_duty_cycle=max_duty_cycle,
+            do_deredden=do_deredden,
+            running_median_width_in_seconds=running_median_width_in_seconds,
+            snr_threshold=snr_threshold,
+            epsilon_fof=epsilon_fof,
+            epsilon_harmonic=epsilon_harmonic,
         )
-        if result is None:
-            continue
-        periods, snrs, phase_bins, boxcar_widths, flags = result
-        n = len(periods)
-        cand_channels.extend([start_channel + ch_idx] * n)
-        cand_periods.extend(periods.tolist())
-        cand_snrs.extend(snrs.tolist())
-        cand_phase_bins.extend(phase_bins.tolist())
-        cand_boxcar_widths.extend(boxcar_widths.tolist())
-        cand_flags.extend(flags.tolist())
+        # Batching amortizes IPC overhead; chunksize=1 would mean one round-trip per channel.
+        chunksize = max(1, n_channels // ((n_workers or os.cpu_count() or 1) * 4))
+        results = process_map(search_fn, data, max_workers=n_workers, chunksize=chunksize, total=n_channels)
+        for ch_idx, result in enumerate(results):
+            if result is None:
+                continue
+            periods, snrs, phase_bins, boxcar_widths, flags = result
+            n = len(periods)
+            cand_channels.extend([start_channel + ch_idx] * n)
+            cand_periods.extend(periods.tolist())
+            cand_snrs.extend(snrs.tolist())
+            cand_phase_bins.extend(phase_bins.tolist())
+            cand_boxcar_widths.extend(boxcar_widths.tolist())
+            cand_flags.extend(flags.tolist())
 
     channels_arr, periods_arr, snrs_arr, phase_bins_arr, boxcar_widths_arr = _finalize_candidate_arrays(
         np.array(cand_channels),

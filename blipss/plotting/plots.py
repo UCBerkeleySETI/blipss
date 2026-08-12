@@ -586,7 +586,7 @@ def plot_phase_resolved_dynamic_spectrum(
     spectrum (bottom-right).
 
     Args:
-        phaseresolved_ds: 2D data array of shape (Nchans, Nbins)
+        phaseresolved_ds: 2D data array of shape (n_chans, n_bins)
         freqs_MHz: Radio frequencies (MHz) corresponding to each channel
         period: Folding period (s)
         start_mjd: Start MJD (UTC) of the observation
@@ -600,7 +600,7 @@ def plot_phase_resolved_dynamic_spectrum(
     with mpl.rc_context(rc):
         bins = len(phaseresolved_ds[0])
         phasebin_centers = _phasebin_centers(bins)
-        fig, axes = plt.subplots(
+        _, axes = plt.subplots(
             nrows=2,
             ncols=2,
             figsize=(8, 7),

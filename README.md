@@ -16,12 +16,12 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
 
 ## Table of Contents
 - [Installation](#installation)
-    - [Option 1: Using a uv environment](#a-using-uv-recommended)
+    - [Option 1: Using a uv environment (recommended)](#a-using-uv-recommended)
     - [Option 2: Using a conda environment](#b-using-a-conda-environment)
     - [Add-on: Enabling LaTeX in Plots](#enabling-latex-in-plots)
 - [Repository Organization](#organization)
 - [Functionalities and Usage](#usage)
-    - [blipss.py](#blipss_exec)
+    - [run-ffa-search](#run-ffa-search)
     - [compare_cands.py](#comparecands)
     - [plot_cands.py](#plotcands)
     - [compute-phase-resolved-ds](#compute-phase-resolved-ds)
@@ -135,22 +135,67 @@ simulate-data --config config/simulate_data.yaml
 
 ## Functionalities and Usage <a name="usage"></a>
 The BLIPSS package contains six executable scripts, which are:
-1. ``blipss.py`` <a name="blipss_exec"></a> <br>
-Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
+1. ``run-ffa-search``: <a name="run-ffa-search"></a>
+Execute a channel-wise FFA period search on a set of input data files (`.fil` or `.h5`), flag harmonics of detected periods, and write one .csv file of candidates per input file.
 
-![BLIPSS workflow (Jan 27, 2022)](https://github.com/UCBerkeleySETI/blipss/blob/main/images/blipss_design_2022Jan27.png?raw=True)
+Input files are processed sequentially, one at a time, so that memory usage stays bounded by the `mem_load` cap. Within a file, the FFA search over spectral channels is embarrassingly parallel and is distributed across CPU cores as contiguous chunks of channels. Here is a schematic of the `run-ffa-search` workflow.
 
-Columns in the .csv file output by ``blipss.py`` include 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'. <br>
+```mermaid
+flowchart TD
+    CFG["config/run_ffa_search.yaml"] --> VAL["Validate config<br/>(BlipssConfig)"]
+    VAL --> LIST["Resolve glob_input<br/>into input_file_list"]
+    LIST --> LOOP{{"For each input file,<br/>one file at a time"}}
+    LOOP --> READ["Read .fil / .h5 waterfall<br/>(at most mem_load GB in memory)"]
+    READ --> PREP["Flip band if foff &lt; 0,<br/>clip channels to [start_ch, stop_ch)"]
+    PREP --> FAN["Split channels into chunks and<br/>dispatch to n_workers processes<br/>(null uses all CPU cores)"]
 
-The current implementation takes about 35 min. to run on a single mid-resolution filterbank product (1.07 s sampling, 2.86 kHz, 1703936 channels). For processing multiple input files in parallel, enable MPI via the following syntax.
+    subgraph POOL["Channel-wise FFA, parallel over CPU cores"]
+        direction LR
+        subgraph L1["Core 1: channel chunk 1"]
+            direction TB
+            A1["FFA search<br/>(periodogram)"] --> B1["Threshold at<br/>snr_threshold"]
+            B1 --> C1["Friends-of-Friends<br/>clustering (epsilon_fof)"]
+            C1 --> D1["Label F / H / S<br/>(epsilon_harmonic)"]
+        end
+        subgraph L2["Core 2: channel chunk 2"]
+            direction TB
+            A2["FFA search"] --> B2["Threshold"] --> C2["Cluster"] --> D2["Label harmonics"]
+        end
+        subgraph LN["Core n: channel chunk n"]
+            direction TB
+            AN["FFA search"] --> BN["Threshold"] --> CN["Cluster"] --> DN["Label harmonics"]
+        end
+    end
+
+    FAN --> A1
+    FAN --> A2
+    FAN --> AN
+
+    D1 --> MERGE["Merge candidates<br/>from all channels"]
+    D2 --> MERGE
+    DN --> MERGE
+    MERGE --> CSV["Write &lt;file stem&gt;_cands.csv<br/>(sorted by descending S/N)"]
+    CSV --> PLOT["Optional scatter plot:<br/>period vs. radio frequency"]
+    PLOT --> LOOP
 ```
-mpiexec -n <nproc> python -m mpi4py executables/blipss.py -i config/blipss.cfg | tee <Log file>
+
+Reads search parameters from a YAML config file. Key configuration sections:
+- `input`: data directory, glob pattern (or an explicit `input_file_list`) for selecting `.fil` or `.h5` files, and optional `start_ch` / `stop_ch` index bounds for restricting the channel range
+- `output`: output directory for the per-file .csv candidate lists (defaults to `data_dir`)
+- `plotting`: `do_plot` flag, list of plot formats (defaults to `['.png']`), and `use_latex` flag
+- `ffa_search`: trial period range (`min_period`, `max_period`), `fpmin`, `snr_threshold`, phase-bin range (`bins_min`, `bins_max`), `ducy_max`, optional running-median detrending (`do_deredden`, `rmed_width`), and clustering tolerances (`epsilon_fof`, `epsilon_harmonic`)
+- `resources`: maximum data volume (GB) to load into memory and `n_workers` parallel worker processes for the channel-wise search (`null` uses all available CPUs)
+
+Columns in each output .csv file are 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'.
+
+Execution syntax:
 ```
-The above syntax assumes a Python call from the repo base directory. Alter paths as required to supply executable and config scripts located in different directories.
+run-ffa-search --config config/run_ffa_search.yaml 2>&1 | tee <Log file>
+```
 
 ---
 2. ``compare_cands.py``: <a name="comparecands"></a>
-Compare periodicity detections across a set of <em>N</em> .csv files generated by ``blipss.py``. For every unique candidate period, an <em>N</em>-digit binary code is generated, wherein ones and zeros represent detections and non-detections respectively.<br>
+Compare periodicity detections across a set of <em>N</em> .csv files generated by ``run-ffa-search``. For every unique candidate period, an <em>N</em>-digit binary code is generated, wherein ones and zeros represent detections and non-detections respectively.<br>
 
 Note that the order of input .csv files passed to ``compare_cands.py`` matters. When read from left to right, the <em>i</em>-th place of the <em>N</em>-digit binary code refers to the <em>i</em>-th .csv file in the input list.<br>
 
@@ -178,7 +223,7 @@ python executables/plot_cands.py -i config/plot_cands.cfg | tee <Log file>
 ```
 
 ---
-4. ``compute-phase-resolved-ds`` <a name="compute-phase-resolved-ds"></a>
+4. ``compute-phase-resolved-ds``: <a name="compute-phase-resolved-ds"></a>
 Fold each spectral channel of a filterbank file at a given period and produce a grayscale phase-resolved dynamic spectrum plot.
 
 Here's a sample output showing a phase-resolved spectrum of pulsar B0355+54.
@@ -198,7 +243,7 @@ compute-phase-resolved-ds --config config/compute_phase_resolved_ds.yaml 2>&1 | 
 ```
 
 ---
-5. ``inject-signal`` <a name="inject-signal"></a>
+5. ``inject-signal``: <a name="inject-signal"></a>
 Inject one or more channel-wide periodic signals into a real-world filterbank data file. Each injected pulse train has a boxcar single-pulse shape and a constant amplitude calibrated to the local per-channel noise statistics.
 
 Reads injection parameters from a YAML config file. Key configuration sections:
@@ -213,7 +258,7 @@ inject-signal --config config/inject_signal.yaml 2>&1 | tee <Log file>
 ```
 
 ---
-6. ``simulate-data`` <a name="simulate-data"></a>
+6. ``simulate-data``: <a name="simulate-data"></a>
 Build an artificial filterbank file with one or more channel-wide periodic signals superposed on a Gaussian white noise background. Injected signals have boxcar single-pulse shapes and a constant pulse amplitude.
 
 Reads simulation parameters from a YAML config file. Key configuration sections:

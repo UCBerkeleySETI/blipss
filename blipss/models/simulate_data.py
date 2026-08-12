@@ -2,15 +2,17 @@
 
 from pathlib import Path
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
+
+from blipss.models.base import BlipssConfigModel
 
 
-class OutputConfig(BaseModel):
+class OutputConfig(BlipssConfigModel):
     basename: str = Field(description="Basename of the output filterbank file")
     output_dir: Path = Field(description="Output directory path (created if non-existent)")
 
 
-class SimulationProperties(BaseModel):
+class SimulationProperties(BlipssConfigModel):
     n_samples: int = Field(description="Number of time samples")
     n_channels: int = Field(description="Number of spectral channels")
     t_samp: float = Field(description="Sampling time (s)")
@@ -22,7 +24,7 @@ class SimulationProperties(BaseModel):
     )
 
 
-class PeriodicSignalInjection(BaseModel):
+class PeriodicSignalInjection(BlipssConfigModel):
     inject_channels: list[int] = Field(
         default=[], description="Channel indices into which a periodic signal is injected"
     )
@@ -69,12 +71,12 @@ class PeriodicSignalInjection(BaseModel):
         return v
 
 
-class OptionalHeaderParameters(BaseModel):
+class OptionalHeaderParameters(BlipssConfigModel):
     source_name: str = Field(default="Unknown", description="Source name written to the filterbank header")
     tstart: float = Field(default=0.0, description="Observation start time as a Modified Julian Date (d)")
 
 
-class SimulateDataConfig(BaseModel):
+class SimulateDataConfig(BlipssConfigModel):
     output: OutputConfig = Field(description="Output file configuration")
     simulation_properties: SimulationProperties = Field(
         description="Filterbank dimensions and frequency/time axis parameters"

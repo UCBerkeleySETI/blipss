@@ -3,25 +3,22 @@
 import os
 from pathlib import Path
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import Field, field_validator, model_validator
+
+from blipss.models.base import BlipssConfigModel
 
 
-class InputDataConfig(BaseModel):
+class InputDataConfig(BlipssConfigModel):
     datafile: str = Field(description="Name of the Blimpy-readable data file (.fil or .h5)")
     data_dir: Path = Field(description="Directory containing the input data file")
 
 
-class OutputConfig(BaseModel):
+class OutputConfig(BlipssConfigModel):
     basename: str = Field(description="Basename of the output plot file (no extension)")
     plot_formats: list[str] = Field(
         default_factory=lambda: [".png"],
         description="File extensions for saved plots (e.g. ['.png', '.pdf']); defaults to ['.png']",
     )
-
-    @field_validator("plot_formats", mode="before")
-    @classmethod
-    def resolve_plot_formats(cls, v: list[str] | None) -> list[str]:
-        return [".png"] if v is None else v
 
     plot_dir: Path | None = Field(
         default=None,
@@ -33,7 +30,7 @@ class OutputConfig(BaseModel):
     )
 
 
-class ChannelSelectionConfig(BaseModel):
+class ChannelSelectionConfig(BlipssConfigModel):
     start_ch: int = Field(default=0, description="First channel index to include (inclusive)")
     stop_ch: int | None = Field(
         default=None,
@@ -41,7 +38,7 @@ class ChannelSelectionConfig(BaseModel):
     )
 
 
-class PhaseFoldingConfig(BaseModel):
+class PhaseFoldingConfig(BlipssConfigModel):
     period: float = Field(default=1.0, description="Folding period (s)")
     bins: int = Field(default=10, description="Number of phase bins in the folded profile")
     do_deredden: bool = Field(
@@ -50,25 +47,11 @@ class PhaseFoldingConfig(BaseModel):
     )
     rmed_width: float = Field(
         default=12.0,
-        description="Running median window width (s) used for detrending; resolved from null to 12.0",
+        description="Running median window width (s) used for detrending",
     )
 
-    @field_validator("rmed_width", mode="before")
-    @classmethod
-    def resolve_rmed_width(cls, v: float | None) -> float:
-        """
-        Resolve rmed_width to its default when null is supplied in the config.
 
-        Args:
-            v: The raw rmed_width value from the config, or None.
-
-        Returns:
-            The validated width value; defaults to 12.0 when None.
-        """
-        return 12.0 if v is None else v
-
-
-class ResourceLimits(BaseModel):
+class ResourceLimits(BlipssConfigModel):
     mem_load: float = Field(default=1.0, description="Maximum data volume (GB) to load into memory")
     n_workers: int | None = Field(
         default=None,
@@ -88,7 +71,7 @@ class ResourceLimits(BaseModel):
         return v
 
 
-class PhaseResolvedDsConfig(BaseModel):
+class PhaseResolvedDsConfig(BlipssConfigModel):
     input_data: InputDataConfig = Field(description="Input data file configuration")
     output: OutputConfig = Field(description="Output plot configuration")
     channel_selection: ChannelSelectionConfig = Field(
@@ -107,10 +90,10 @@ class PhaseResolvedDsConfig(BaseModel):
     @model_validator(mode="after")
     def resolve_output_defaults(self) -> "PhaseResolvedDsConfig":
         """
-        Resolve plot_dir and plot_formats defaults from input data configuration.
+        Resolve plot_dir default from input data configuration.
 
         Returns:
-            The model instance with plot_dir and plot_formats resolved.
+            The model instance with plot_dir resolved.
         """
         if self.output.plot_dir is None:
             self.output.plot_dir = self.input_data.data_dir

@@ -2,12 +2,12 @@
 # The synthetic data consist of one or more channel-wide periodic spectral signals superposed on a normal, white noise background.
 
 output:
-  basename: sourceE_scan1_v2  # Basename of output filterbank file
-  output_dir: /Users/akshay/SETI/simulate_data  # Output path (will be created if non-existent)
+  basename: sourceA_scan1  # Basename of output filterbank file
+  output_dir: /Users/akshay/SETI/Data  # Output path (will be created if non-existent)
 
 simulation_properties:
   n_samples: 279  # No. of time samples
-  n_channels: 2048  # No. of spectral channels
+  n_channels: 32  # No. of spectral channels
   t_samp: 1.073741824  # Sampling time (s)
   foff: 0.390625  # Channel bandwidth (MHz)
   fch1: 1150.0  # Radio frequency (MHz) corresponding to the first spectral channel
@@ -15,13 +15,13 @@ simulation_properties:
 
 # Injection of one or more single-channel periodic boxcar pulse trains with a constant amplitude from one pulse to the next
 periodic_signal_injection:
-  inject_channels: [1024]  # List of integer channel numbers in which to inject a signal
-  periods: [20.0]  # List of signal periods (s) injected in above channels
-  duty_cycles: [0.1]  # List of pulse duty cycles for above respective channels
-  pulse_snr: [15.0]  # List of pulse peak signal-to-noise values
-  initial_phase: [0.50]  # List of initial pulse emission phases (fraction of a period) in specified channels
+  inject_channels: [16]  # List of integer channel numbers in which to inject a signal
+  periods: [30.0]  # List of signal periods (s) injected in above channels
+  duty_cycles: [0.2]  # List of pulse duty cycles for above respective channels
+  pulse_snr: [30.0]  # List of pulse peak signal-to-noise values
+  initial_phase: [0.2]  # List of initial pulse emission phases (fraction of a period) in specified channels
 
 # Optional header parameters to mimic the construction of a real-world data set.
 optional_header_parameters:
-  source_name: sourceE  # Source name
+  source_name: sourceA  # Source name
   tstart: 58706.5  # Start MJD (d: 0.0)

@@ -12,6 +12,17 @@ TICK_LABELSIZE: int = 14
 TICK_LENGTH: int = 7
 SCATTER_MARKER_SIZE: int = 38
 
+# Column headers for FFA candidate detection output CSV files.
+FFA_CANDIDATE_CSV_COLUMNS: list[str] = [
+    "Channel",
+    "Radio frequency (MHz)",
+    "Bins",
+    "Best width",
+    "Period (s)",
+    "S/N",
+    "Harmonic flag",
+]
+
 # Supported filterbank file extensions for reading and writing.
 FILTERBANK_EXTENSIONS: frozenset[str] = frozenset({".fil", ".h5"})
 

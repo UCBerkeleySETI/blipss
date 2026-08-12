@@ -31,6 +31,7 @@ Repository = "https://github.com/UCBerkeleySETI/blipss"
 [project.scripts]
 compute-phase-resolved-ds = "blipss.cli.compute_phase_resolved_ds:app"
 inject-signal = "blipss.cli.inject_signal:app"
+run-ffa-search = "blipss.cli.run_ffa_search:app"
 simulate-data = "blipss.cli.simulate_data:app"
 
 [dependency-groups]

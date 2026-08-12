@@ -7,7 +7,7 @@ input_data:
 output:
   basename: guppi_58702_22205_PSR_B0355+54_0041  # Basename of output plot
   plot_formats: null  # List of output plot formats (d: ['.png'])
-  plot_dir: /Users/akshay/SETI/Phase_resolved_dynamic_spectrum  # Output path (d: data_dir)
+  plot_dir: /Users/akshay/SETI/Outputs  # Output path (d: data_dir)
   use_latex: true  # Render plot text with LaTeX; requires a system LaTeX installation as prerequisite (d: false)
 
 channel_selection:
