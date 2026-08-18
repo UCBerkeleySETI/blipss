@@ -46,7 +46,7 @@ def run_simulate_data(cfg: SimulateDataConfig) -> None:
     header_params = cfg.optional_header_parameters
     output_cfg = cfg.output
 
-    sample_times = np.arange(sim.n_samples) * sim.t_samp
+    sample_times = np.arange(sim.n_samples, dtype=np.float64) * sim.t_samp
     rng = np.random.default_rng(sim.seed)
     data = generate_white_noise_background(sim.n_channels, sim.n_samples, rng=rng)
     logger.info("Background Gaussian white noise data generated.")
