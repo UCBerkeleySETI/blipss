@@ -62,7 +62,7 @@ def run_inject_signal(cfg: InjectSignalConfig) -> None:
     logger.info(f"Reading in: {file_path}")
     wat = read_waterfall_file(file_path, limits.mem_load)
     data, n_samples, tsamp = extract_data_array(wat)
-    sample_times = np.arange(n_samples) * tsamp
+    sample_times = np.arange(n_samples, dtype=np.float64) * tsamp
     logger.info("Waterfall data successfully loaded into memory.")
 
     logger.info("Computing median bandpass and per-channel standard deviation.")
