@@ -483,9 +483,12 @@ def test_annotate_period_bins_adds_two_text_elements() -> None:
 # ---------------------------------------------------------------------------
 
 
+@patch("blipss.plotting.plots.plt.tight_layout")
 @patch("blipss.plotting.plots._save_and_close")
 @patch("blipss.plotting.plots._require_latex")
-def test_scatterplot_calls_require_latex_when_use_latex_true(mock_require: MagicMock, mock_save: MagicMock) -> None:
+def test_scatterplot_calls_require_latex_when_use_latex_true(
+    mock_require: MagicMock, mock_save: MagicMock, mock_tight_layout: MagicMock
+) -> None:
     """scatterplot_period_radiofreq calls _require_latex when use_latex is True."""
     scatterplot_period_radiofreq(
         np.array([1.0, 2.0]),
@@ -500,6 +503,7 @@ def test_scatterplot_calls_require_latex_when_use_latex_true(mock_require: Magic
         use_latex=True,
     )
     mock_require.assert_called_once()
+    mock_tight_layout.assert_called_once()
     mock_save.assert_called_once_with("out/plot", [".png"])
 
 
