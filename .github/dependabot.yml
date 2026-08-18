@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      # blimpy 2.1.4 (latest release) imports pkg_resources, removed in setuptools 82+.
+      # Remove this ignore once UCBerkeleySETI/blimpy#281 lands in a release.
+      - dependency-name: "setuptools"
+        versions: [">=82.0.0"]
