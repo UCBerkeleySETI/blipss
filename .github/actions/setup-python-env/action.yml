@@ -18,8 +18,10 @@ runs:
       uses: astral-sh/setup-uv@v6
       with:
         version: ${{ inputs.uv-version }}
-        enable-cache: 'true'
-        cache-suffix: ${{ hashFiles('.python-version') }}
+        # Caching disabled: riptide-ffa compiles its C++ extension with
+        # -march=native, so a cached build reused on a different runner host
+        # (different CPU feature set) can crash with "illegal instruction".
+        enable-cache: 'false'
 
     - name: Install Python dependencies
       run: uv sync --frozen

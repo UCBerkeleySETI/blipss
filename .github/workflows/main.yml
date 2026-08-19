@@ -38,9 +38,9 @@ jobs:
         uses: ./.github/actions/setup-python-env
 
       - name: Run tests
-        run: uv run python -m pytest tests --cov --cov-config=pyproject.toml
+        run: uv run python -m pytest --cov-config=pyproject.toml --cov-report=xml
 
-      - name: Post coverage comment
-        uses: py-cov-action/python-coverage-comment-action@v3
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v5
         with:
-          GITHUB_TOKEN: ${{ github.token }}
+          token: ${{ secrets.CODECOV_TOKEN }}
