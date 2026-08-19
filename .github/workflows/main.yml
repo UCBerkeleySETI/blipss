@@ -38,7 +38,7 @@ jobs:
         uses: ./.github/actions/setup-python-env
 
       - name: Run tests
-        run: uv run pytest tests --cov --cov-config=pyproject.toml
+        run: uv run python -m pytest tests --cov --cov-config=pyproject.toml
 
       - name: Post coverage comment
         uses: py-cov-action/python-coverage-comment-action@v3
