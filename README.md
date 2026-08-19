@@ -1,16 +1,6 @@
 # BLIPSS
-[![AJ Paper](https://img.shields.io/badge/DOI-10.3847/1538--3881/acccf0-blue)](https://doi.org/10.3847/1538-3881/acccf0)
-[![arXiv](http://img.shields.io/badge/astro.ph-2305.18527-B31B1B.svg)](https://arxiv.org/abs/2305.18527) 
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/UCBerkeleySETI/blipss/blob/main/LICENSE)
 
-The Breakthrough Listen Investigation for Periodic Spectral Signals (BLIPSS) targets the detection of narrowband periodic radar transmissions from potential technologically advanced alien life forms residing in the Universe. See this [link](http://www.mobileradar.org/radar_descptn_3.html) for examples of historic terrestrial radar operating at different radio frequencies.
-
-BLIPSS utilizes the Fast Folding Algorithm (FFA) in [`riptide-ffa`](https://github.com/v-morello/riptide) to search for channel-wide periodic signals in radio dynamic spectra.
-
-## Citation
-
-If using ``blipss`` contributes to a scientific publication, please cite the article:  
-[Suresh et al., <i>"A 4&ndash;8 GHz Galactic Center Search for Periodic Technosignatures"</i>. 2023 AJ 165 255](https://ui.adsabs.harvard.edu/abs/2023arXiv230518527S/abstract).
+This branch preserves an old, unmaintained version of the BLIPSS codebase. For the latest maintained version, please refer to the `main` branch.
 
 ---
 
@@ -30,12 +20,12 @@ If using ``blipss`` contributes to a scientific publication, please cite the art
 ## Package Dependencies <a name="dependencies"></a>
 ```blipss``` is written in Python 3.8.5, and has the following package dependencies.
 - astropy >= 4.0
-- [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) >= 2.0.0
+- [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) == 2.0.0
 - matplotlib >= 3.1.0
 - mpi4py >= 3.1.1
 - numpy >= 1.18.1
 - pandas >= 1.3.4
-- [`riptide-ffa`](https://github.com/v-morello/riptide) >= 0.2.4
+- [`riptide-ffa`](https://github.com/v-morello/riptide) == 0.2.4
 - scipy >= 1.6.0
 - tqdm >= 4.32.1
 
@@ -71,7 +61,7 @@ The BLIPSS package currently contains six chief executable files, which are:
 1. ``blipss.py`` <a name="blipss_exec"></a> <br>
 Executes channel-wise FFA on input data files (filterbank or hdf5), identifies harmonics of detected periods, and outputs a .csv file of candidates. Here is a schematic of the `blipss.py` workflow. <br>
 
-![BLIPSS workflow (Jan 27, 2022)](https://github.com/UCBerkeleySETI/blipss/blob/main/images/blipss_design_2022Jan27.png?raw=True)
+![BLIPSS workflow (Jan 27, 2022)](https://github.com/UCBerkeleySETI/blipss/blob/old/images/blipss_design_2022Jan27.png?raw=True)
 
 Columns in the .csv file output by ``blipss.py`` include 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'. <br>
 
@@ -101,7 +91,7 @@ Produce verification plots for a chosen subset of candidates. <br>
 
 Here's a sample plot of a candidate with period 30 s and code 101010. Each row represents a different data file. The left column shows periodograms derived from different data files. We indicate the candidate period by red dashed vertical lines in the left panels. The right column illustrates average pulse profiles and pulse stacks in the phase-time plane. <br>
 
-![B04 candidate](https://github.com/UCBerkeleySETI/blipss/blob/main/images/sim_cand.png?raw=True)
+![B04 candidate](https://github.com/UCBerkeleySETI/blipss/blob/old/images/sim_cand.png?raw=True)
 
 Clearly, we see significant spikes at the expected candidate period in the periodograms on the first, third, and fifth rows. <br>
 
@@ -116,7 +106,7 @@ Compute and plot the phase-resolved spectrum for a given folding period.
 
 Here's a sample output showing a phase-resolved spectrum of pulsar B0355+54.
 
-![psrB0355 spectrum](https://github.com/UCBerkeleySETI/blipss/blob/main/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
+![psrB0355 spectrum](https://github.com/UCBerkeleySETI/blipss/blob/old/images/guppi_58702_22205_PSR_B0355%2B54_0041_period0.15637.png?raw=True)
 
 Execution syntax from repo base folder:
 ```
