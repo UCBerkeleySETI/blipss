@@ -23,7 +23,7 @@ from typing import Literal, overload
 import numpy as np
 import numpy.typing as npt
 
-from blipss.constants import DEFAULT_EPSILON_HARMONIC
+from blipss.constants import DEFAULT_EPSILON_HARMONIC, FUNDAMENTAL_FLAG, HARMONIC_FLAG, SUBHARMONIC_FLAG
 
 
 def _sort_by_snr(
@@ -190,8 +190,10 @@ def label_harmonics(
         temp_snrs.append(snrs[global_idx])
 
         # _find_subharmonic_indices guarantees idx_subharm[0] is p0 itself,
-        # so the flag list always starts with exactly one 'F'.
-        flags: list[str] = ["F"] + ["S"] * (len(idx_subharm) - 1) + ["H"] * len(idx_harm)
+        # so the flag list always starts with exactly one fundamental flag.
+        flags: list[str] = (
+            [FUNDAMENTAL_FLAG] + [SUBHARMONIC_FLAG] * (len(idx_subharm) - 1) + [HARMONIC_FLAG] * len(idx_harm)
+        )
         harm_flag.extend(flags)
 
         active[global_idx] = False
