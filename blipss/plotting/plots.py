@@ -14,7 +14,15 @@ import numpy as np
 import numpy.typing as npt
 from matplotlib.axes import Axes
 
-from ..constants import LABEL_FONTSIZE, SCATTER_MARKER_SIZE, TICK_LABELSIZE, TICK_LENGTH
+from ..constants import (
+    FUNDAMENTAL_FLAG,
+    HARMONIC_FLAG,
+    LABEL_FONTSIZE,
+    SCATTER_MARKER_SIZE,
+    SUBHARMONIC_FLAG,
+    TICK_LABELSIZE,
+    TICK_LENGTH,
+)
 
 # ---------------------------------------------------------------------------
 # Shared helpers
@@ -227,9 +235,9 @@ def scatterplot_period_radiofreq(
         plt.figure(figsize=(7, 6))
         marker_count = 0
         for flag, marker, label in [
-            ("F", "o", "Fundamental"),
-            ("S", "+", "Subharmonic"),
-            ("H", "x", "Harmonic"),
+            (FUNDAMENTAL_FLAG, "o", "Fundamental"),
+            (SUBHARMONIC_FLAG, "+", "Subharmonic"),
+            (HARMONIC_FLAG, "x", "Harmonic"),
         ]:
             if _scatter_candidate_group(
                 cand_periods, cand_freqs, cand_snrs, cand_flags, flag, marker, label, cmap, norm

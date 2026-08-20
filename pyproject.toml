@@ -1,6 +1,6 @@
 [project]
 name = "blipss"
-version = "1.0.0"
+version = "1.1.0"
 description = "Breakthrough Listen Investigation for Periodic Spectral Signals"
 authors = [{ name = "Akshay Suresh", email = "akshay721@gmail.com" }]
 readme = "README.md"
@@ -29,6 +29,7 @@ dependencies = [
 Repository = "https://github.com/UCBerkeleySETI/blipss"
 
 [project.scripts]
+compare-cands = "blipss.cli.compare_cands:app"
 compute-phase-resolved-ds = "blipss.cli.compute_phase_resolved_ds:app"
 inject-signal = "blipss.cli.inject_signal:app"
 run-ffa-search = "blipss.cli.run_ffa_search:app"
