@@ -16,6 +16,8 @@ LABEL_FONTSIZE: int = 16
 TICK_LABELSIZE: int = 14
 TICK_LENGTH: int = 7
 SCATTER_MARKER_SIZE: int = 38
+# Headroom multiplier applied to the max periodogram S/N to set the candidate plot's y-axis limit.
+SNR_PLOT_HEADROOM_FACTOR: float = 1.25
 
 # Column headers for FFA candidate detection output CSV files.
 FFA_CANDIDATE_CSV_COLUMNS: list[str] = [
