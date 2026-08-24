@@ -22,6 +22,7 @@ In bullet points, concisely describe what updates have been made.
 - [ ] `make test` passes locally.
 - [ ] I have updated `README.md` if this PR adds or changes CLI functionality.
 - [ ] I have updated relevant docstrings/documentation.
+- [ ] If this PR contains code changes, I have incremented the version number in `pyproject.toml` following semantic versioning.
 
 ## Additional Notes
 
