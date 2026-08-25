@@ -73,5 +73,5 @@ def test_read_candidates_csv_missing_column_raises_value_error(tmp_path: Path) -
     incomplete_header = [c for c in FFA_CANDIDATE_CSV_COLUMNS if c != "S/N"]
     _write_csv(csv_path, incomplete_header, [])
 
-    with pytest.raises(ValueError, match="not in list"):
+    with pytest.raises(ValueError, match="S/N"):
         read_candidates_csv(csv_path)

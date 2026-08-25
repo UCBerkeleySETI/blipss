@@ -1,10 +1,10 @@
 """Read utilities for FFA candidate detection CSV files."""
 
-import csv
 from pathlib import Path
 
 import numpy as np
 import numpy.typing as npt
+import pandas as pd
 
 from blipss.constants import FFA_CANDIDATE_CSV_COLUMNS
 
@@ -45,16 +45,12 @@ def read_candidates_csv(
     Raises:
         ValueError: When the file header is missing one of ``FFA_CANDIDATE_CSV_COLUMNS``.
     """
-    with csv_path.open(newline="") as f:
-        header = next(csv.reader(f))
-    col = [header.index(name) for name in FFA_CANDIDATE_CSV_COLUMNS]
-    data = np.loadtxt(csv_path, delimiter=",", skiprows=1, usecols=col, dtype=_CANDIDATE_DTYPE, ndmin=1)
-    return (
-        data["channels"],
-        data["radiofreqs"],
-        data["phase_bins"],
-        data["boxcar_widths"],
-        data["periods"],
-        data["snrs"],
-        data["flags"],
+    df = pd.read_csv(csv_path)
+    missing = [name for name in FFA_CANDIDATE_CSV_COLUMNS if name not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required column(s) in {csv_path}: {missing}")
+    channels, radiofreqs, phase_bins, boxcar_widths, periods, snrs, flags = (
+        df[name].to_numpy(dtype=dtype)
+        for name, (_, dtype) in zip(FFA_CANDIDATE_CSV_COLUMNS, _CANDIDATE_DTYPE, strict=True)
     )
+    return channels, radiofreqs, phase_bins, boxcar_widths, periods, snrs, flags
