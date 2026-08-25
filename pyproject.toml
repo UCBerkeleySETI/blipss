@@ -1,6 +1,6 @@
 [project]
 name = "blipss"
-version = "1.2.0"
+version = "1.2.1"
 description = "Breakthrough Listen Investigation for Periodic Spectral Signals"
 authors = [{ name = "Akshay Suresh", email = "akshay721@gmail.com" }]
 readme = "README.md"
