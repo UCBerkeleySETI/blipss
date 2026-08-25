@@ -63,3 +63,4 @@ Guidance for developers and AI coding agents working with `blipss`
 - `CONTRIBUTING.md`: full human-oriented contributor walkthrough.
 - `.github/PULL_REQUEST_TEMPLATE.md`: PR checklist template.
 - `README.md`: CLI usage and repo organization details.
+- `docs/` + `mkdocs.yml`: MkDocs site combining `README.md` (transcluded verbatim into `docs/index.md`) with an API reference generated from docstrings via `mkdocstrings`. Preview locally with `make docs`, strict build check with `make docs-test`. Published to GitHub Pages on push to `main`.

@@ -351,15 +351,15 @@ def search_all_channels(
         cand_boxcar_widths, cand_flags) across all channels.
         - cand_channels: Spectral channel index of each candidate
         - cand_periods: Trial periods (s) at which the peak S/N across all boxcar widths
-          exceeded snr_threshold
+            exceeded snr_threshold
         - cand_snrs: Peak S/N for each candidate, maximised over all trial boxcar widths
         - cand_phase_bins: Number of phase bins across the full [0, 1] phase range to be
-          used to generate the folded profile for each candidate
+            used to generate the folded profile for each candidate
         - cand_boxcar_widths: Width (in phase bins) of the boxcar matched filter that
-          produced the peak S/N for each candidate; the implied duty cycle is
-          cand_boxcar_widths / cand_phase_bins
+            produced the peak S/N for each candidate; the implied duty cycle is
+            cand_boxcar_widths / cand_phase_bins
         - cand_flags: Harmonic classification for each candidate ('F': fundamental,
-          'H': harmonic, 'S': sub-harmonic)
+            'H': harmonic, 'S': sub-harmonic)
     """
     # np.flip returns negatively-strided views; contiguous layout avoids a per-worker copy on each row access.
     data = np.ascontiguousarray(data)
