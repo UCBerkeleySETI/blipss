@@ -1804,7 +1804,7 @@ wheels = [
 
 [[package]]
 name = "riptide-ffa"
-version = "0.2.5"
+version = "0.2.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "astropy" },
@@ -1817,7 +1817,7 @@ dependencies = [
     { name = "schema" },
     { name = "threadpoolctl" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/90/b4/42e7a241908fbf7c5d9c0499500c2312857ce56fee4e794b680aa2417f37/riptide-ffa-0.2.5.tar.gz", hash = "sha256:9e6c116149733ec12fd590836581a50437e959536116a959bfc38fbba7071e8f", size = 79013, upload-time = "2023-12-23T14:41:38.724Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/54/c4/075ac32b3bc4e11499eb0d246489915fc5b763ba0c0296c23318cfd35ac7/riptide_ffa-0.2.6.tar.gz", hash = "sha256:eb729a5e12534fc87a181ccaa9ce197f1cd143408df1649833c230496d7f661f", size = 77766, upload-time = "2026-09-10T15:01:11.384Z" }
 
 [[package]]
 name = "ruff"
