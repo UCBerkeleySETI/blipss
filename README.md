@@ -23,22 +23,26 @@ This branch preserves an old, unmaintained version of the BLIPSS codebase. For t
 - [`blimpy`](https://github.com/UCBerkeleySETI/blimpy) == 2.0.0
 - matplotlib >= 3.1.0
 - mpi4py >= 3.1.1
-- numpy >= 1.18.1
+- numpy >= 1.18.1, <1.24
 - pandas >= 1.3.4
 - [`riptide-ffa`](https://github.com/v-morello/riptide) == 0.2.4
 - scipy >= 1.6.0
 - tqdm >= 4.32.1
 
-## Installation <a name="installation"></a>
-1. Clone this repository to your local machine. To do so, execute the following at the command line.
+## Installation using conda <a name="installation"></a>
+Ensure that you have git and a working Anaconda distribution installed on your machine.
+
+1. Clone this repository to your local machine.
 ```
 git clone git@github.com:UCBerkeleySETI/blipss.git
 ```
+
 2. Verify that your local Python 3 installation satisfies all dependencies of ```blipss```. If not, either manually install the missing dependencies or run the below calls.
 ```
 cd blipss
+conda create -n blipss-env -c conda-forge python=3.8.5 ipython openmpi
 pip install pybind11
-python setup.py install
+CXXFLAGS="-Wno-c++11-narrowing" CFLAGS="-Wno-c++11-narrowing" pip install .
 python setup.py clean
 ```
 Note: `pybind11` is a prerequisite for installing [`riptide-ffa`](https://github.com/v-morello/riptide).
@@ -65,7 +69,7 @@ Executes channel-wise FFA on input data files (filterbank or hdf5), identifies h
 
 Columns in the .csv file output by ``blipss.py`` include 'Channel', 'Radio frequency (MHz)', 'Bins', 'Best width', 'Period (s)', 'S/N', and 'Harmonic flag'. <br>
 
-The current implementation takes about 35 min. to run on a single mid-resolution filterbank product (1.07 s sampling, 2.86 kHz, 1703936 channels). For processing multiple input files in parallel, enable MPI via the following syntax.
+For processing multiple input files in parallel, enable MPI via the following syntax.
 ```
 mpiexec -n <nproc> python -m mpi4py executables/blipss.py -i config/blipss.cfg | tee <Log file>
 ```

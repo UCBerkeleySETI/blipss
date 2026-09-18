@@ -22,7 +22,7 @@ install_requires = [
         'blimpy==2.0.0',
         'matplotlib>=3.1.0',
         'mpi4py>=3.1.1',
-        'numpy>=1.18.1',
+        'numpy>=1.18.1,<1.24',
         'pandas>=1.3.4',
         'riptide-ffa==0.2.4',
         'scipy>=1.6.0',
